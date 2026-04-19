@@ -1,23 +1,21 @@
 ---
 import "../styles/global.css";
 import { Image } from "astro:assets";
-import Logo from "../assets/icons/logo-full.svg";
-import imageMenu from "../assets/img/menu.avif";
+import Logo from "../assets/astro.svg";
+import imageMenu from "../assets/background.svg";
 ---
 
-<header class=`bg-` }>
+<header class=`bg-color-beige`>
     <a
         class="relative z-20 origin-top-left transition-transform duration-300 ease-in-out group-has-aria-expanded/header:scale-150"
         href="/"
         aria-label="Accueil"
     >
-        <Logo
-            class={`${isHome ? "fill-white" : ""} group-has-aria-expanded/header:fill-white`}
-        />
+        <Logo class={`group-has-aria-expanded/header:fill-white`} />
     </a>
 
     <button
-        class={`group *:ease relative z-20 flex h-4 w-8 flex-col justify-between *:h-0.5 *:w-full *:bg-gray-900 ${isHome ? "*:bg-white" : ""} *:transition-all *:duration-300 lg:hidden`}
+        class={`group *:ease relative z-20 flex h-4 w-8 flex-col justify-between *:h-0.5 *:w-full *:bg-gray-900 *:transition-all *:duration-300 lg:hidden`}
         id="menu-btn"
         aria-label="menu"
         aria-expanded="false"
@@ -33,7 +31,7 @@ import imageMenu from "../assets/img/menu.avif";
 
     <nav
         id="menu"
-        class={`visible fixed inset-0 z-10 text-white ${!isHome ? "lg:text-gray-900" : ""} group opacity-100 transition-all duration-300 ease-in-out before:fixed before:inset-0 before:z-9 before:translate-y-0 before:bg-gray-950 before:transition aria-hidden:before:-translate-y-full max-lg:space-y-12 max-lg:p-10 max-lg:aria-hidden:invisible max-lg:aria-hidden:opacity-0 lg:relative lg:flex lg:flex-1 lg:items-center lg:justify-between lg:bg-transparent lg:text-sm lg:font-bold lg:tracking-wide lg:opacity-100`}
+        class={`visible fixed inset-0 z-10 text-white group opacity-100 transition-all duration-300 ease-in-out before:fixed before:inset-0 before:z-9 before:translate-y-0 before:bg-gray-950 before:transition aria-hidden:before:-translate-y-full max-lg:space-y-12 max-lg:p-10 max-lg:aria-hidden:invisible max-lg:aria-hidden:opacity-0 lg:relative lg:flex lg:flex-1 lg:items-center lg:justify-between lg:bg-transparent lg:text-sm lg:font-bold lg:tracking-wide lg:opacity-100`}
         aria-hidden="true"
     >
         <ul
