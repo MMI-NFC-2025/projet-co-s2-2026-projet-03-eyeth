@@ -1,1 +1,48 @@
-footer
+---
+import "../styles/global.css";
+import { Image } from "astro:assets";
+import background from "../assets/backimage_footer.svg";
+---
+
+<!-- vérifier avec colorable si le texte va être bien visible ou pas -->
+<footer class="flex flex-col relative overflow-hidden text-beige">
+    <Image
+        class="absolute z-1 object-cover object-top w-full"
+        src={background}
+        alt="Fond du footer"
+    />
+    <div
+        class="relative flex w-full box-border m-5 justify-center grid-cols-2 z-2"
+    >
+        <nav class="flex-1 max-w-75">
+            <ul
+                class="flex flex-col gap-5 list-none u-list-unstyled font-[20px]"
+            >
+                <li>
+                    <a href="/">Nos jeux</a>
+                </li>
+                <li>
+                    <a href="/aboutus">Lecons</a>
+                </li>
+                <li>
+                    <a href="/programme">A propos</a>
+                </li>
+                <li>
+                    <a href="/artistes">Nous contacter</a>
+                </li>
+            </ul>
+        </nav>
+
+        <nav class="flex-1 max-w-75">
+            <ul>
+                <li>
+                    <a href="/"> Instragram </a>
+                </li>
+                <li>
+                    <a href="/"> Behance </a>
+                </li>
+                <li><a href="/">LinkedIn</a></li>
+            </ul>
+        </nav>
+    </div>
+</footer>
