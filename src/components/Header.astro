@@ -1,7 +1,9 @@
 ---
 import "../styles/global.css";
 import { Image } from "astro:assets";
-import logo from "../assets/eyethBleu.svg";
+import logoBleu from "../assets/eyethBleu.svg";
+import logoBeige from "../assets/eyethBeige.svg";
+import backMenu from "../assets/backimage_hero_menu.svg";
 
 const navLinks = [
   { label: "Accueil", href: "/" },
@@ -12,10 +14,24 @@ const navLinks = [
 ];
 ---
 
-<header class="fixed top-0 left-0 right-0 z-50 bg-beige">
+<header id="header" class="fixed top-0 left-0 right-0 z-50 bg-beige">
+  <Image
+    id="menu-bg"
+    src={backMenu}
+    alt="Fond du menu"
+    aria-hidden="true"
+    class="absolute inset-0 w-full h-full object-cover -z-10 opacity-0 transition-opacity duration-300"
+  />
   <div class="flex items-center justify-between px-5 h-16">
     <a href="/">
-      <Image src={logo} alt="logo" class="h-12" />
+      <Image
+        src={logoBleu}
+        alt="logoEyethBleu"
+        class="h-12"
+        id="logo"
+        data-logo-header={logoBleu.src}
+        data-logo-menu={logoBeige.src}
+      />
     </a>
 
     <button
@@ -43,7 +59,7 @@ const navLinks = [
   <nav
     id="mobile-menu"
     aria-hidden="true"
-    class="overflow-hidden max-h-0 duration-300 ease-in-out bg-beige"
+    class="overflow-hidden max-h-0 duration-300 ease-in-out"
   >
     <ul class="flex flex-col px-5 py-4 gap-1">
       {
@@ -51,7 +67,7 @@ const navLinks = [
           <li>
             <a
               href={link.href}
-              class="mobile-link flex items-center gap-3 px-3 py-3 text-bleu hover:text-rouge font-medium text-base transition-colors duration-200 opacity-0 translate-y-2"
+              class="mobile-link flex items-center gap-3 px-3 py-3 text-beige hover:text-rouge font-medium text-base transition-colors duration-200 opacity-0 translate-y-2"
               style={`transition-delay: ${i * 50}ms`}
             >
               <span class="w-1.5 h-1.5 rounded-full bg-rouge shrink-0" />
@@ -74,6 +90,11 @@ const navLinks = [
   const bar2 = document.getElementById("bar-2")!;
   const bar3 = document.getElementById("bar-3")!;
   const links = document.querySelectorAll<HTMLElement>(".mobile-link");
+  const logo = document.getElementById("logo") as HTMLImageElement;
+  const LOGO_HEADER = logo.dataset.logoHeader!;
+  const LOGO_MENU = logo.dataset.logoMenu!;
+  const header = document.getElementById("header")!;
+  const menuBg = document.getElementById("menu-bg")!;
 
   let isOpen = false;
 
@@ -84,10 +105,21 @@ const navLinks = [
 
     menu.style.maxHeight = menu.scrollHeight + "px";
 
+    logo.style.opacity = "0";
+    setTimeout(() => {
+      logo.src = LOGO_MENU;
+      logo.style.opacity = "1";
+    }, 150);
+
     bar1.style.transform = "translateY(8px) rotate(45deg)";
     bar2.style.opacity = "0";
     bar2.style.transform = "scaleX(0)";
     bar3.style.transform = "translateY(-8px) rotate(-45deg)";
+
+    bar1.classList.replace("bg-bleu", "bg-beige");
+    bar3.classList.replace("bg-bleu", "bg-beige");
+    header.classList.remove("bg-beige");
+    menuBg.classList.replace("opacity-0", "opacity-100");
 
     links.forEach((link) => {
       link.style.opacity = "1";
@@ -102,10 +134,21 @@ const navLinks = [
 
     menu.style.maxHeight = "0";
 
+    logo.style.opacity = "0";
+    setTimeout(() => {
+      logo.src = LOGO_HEADER;
+      logo.style.opacity = "1";
+    }, 150);
+
     bar1.style.transform = "";
     bar2.style.opacity = "";
     bar2.style.transform = "";
     bar3.style.transform = "";
+
+    bar1.classList.replace("bg-beige", "bg-bleu");
+    bar3.classList.replace("bg-beige", "bg-bleu");
+    header.classList.add("bg-beige");
+    menuBg.classList.replace("opacity-100", "opacity-0");
 
     links.forEach((link) => {
       link.style.opacity = "0";
