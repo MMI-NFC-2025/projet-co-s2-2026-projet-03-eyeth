@@ -8,3 +8,23 @@
    --color-system-rouge: #f22d06;
    --color-system-vert: #b8ce52;
 }
+
+@layer base {
+  /* Configuration globale du corps de page */
+  body {
+    @apply font-corps text-base text-gray-800 antialiased;
+  }
+
+  /* Configuration automatique des titres */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-titre font-bold text-gray-900;
+  }
+  
+  /* Ajustement des tailles de titres (optionnel mais recommandé) */
+  h1 { @apply text-4xl md:text-6xl mb-6; }
+  h2 { @apply text-3xl md:text-5xl mb-5; }
+  h3 { @apply text-2xl md:text-4xl mb-4; }
+  h4 { @apply text-xl md:text-3xl mb-3; }
+  h5 { @apply text-lg md:text-2xl mb-2; }
+  h6 { @apply text-base md:text-xl mb-2; }
+}

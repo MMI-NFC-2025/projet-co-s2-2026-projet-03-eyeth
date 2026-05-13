@@ -1,0 +1,18 @@
+---
+import "../styles/global.css";
+import { Image } from "astro:assets";
+import backHero from "../assets/hero.webp";
+
+const { title } = Astro.props;
+---
+
+<Image
+    src={backHero}
+    alt="Fond du hero"
+    class="absolute inset-0 w-screen -z-10"
+/>
+<div
+    class="mobile-link flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 py-15"
+>
+    <h1>{title}</h1>
+</div>
