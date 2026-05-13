@@ -1,0 +1,33 @@
+---
+import { Image } from "astro:assets";
+
+const { nom, description, image } = Astro.props;
+---
+
+<a
+    href="/"
+    class="group relative block w-80 h-80 rounded-lg overflow-hidden shadow-lg my-4 mx-auto"
+>
+    <Image
+        class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-500 group-hover:scale-110"
+        src={image}
+        alt="Image d'illustration"
+    />
+    <div
+        class="absolute inset-0 z-10 bg-linear-to-t from-blue-900/95 via-blue-900/40 to-transparent"
+    >
+    </div>
+
+    <div class="relative z-20 flex h-full flex-col justify-end p-6 text-beige">
+        <h3
+            class="text-2xl font-bold mb-2 drop-shadow-md translate-y-2 group-hover:translate-y-0 transition-all duration-300"
+        >
+            {nom}
+        </h3>
+        <p
+            class="text-sm font-medium opacity-0 group-hover:opacity-90 transition-all duration-300 delay-75 drop-shadow-sm"
+        >
+            {description}
+        </p>
+    </div>
+</a>

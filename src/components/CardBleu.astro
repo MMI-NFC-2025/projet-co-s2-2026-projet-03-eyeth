@@ -1,16 +1,12 @@
 ---
 import { Image } from "astro:assets";
-// On s'attend à recevoir un objet image, pas une string
 const { titre, description, image } = Astro.props;
 ---
 
 <a
-    class="rounded-lg flex flex-col bg-bleu p-5 m-10 items-center text-beige hover:shadow-lg transition-shadow duration-300"
+    class="rounded-lg flex flex-col bg-bleu p-5 m-10 items-center text-beige"
     href="/"
 >
-    {
-        /* Le composant Image d'Astro peut maintenant traiter l'objet correctement */
-    }
     <Image
         class="rounded-lg w-full h-auto object-cover"
         src={image}

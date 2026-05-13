@@ -2,8 +2,10 @@
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import CardFonctionnalite from "../components/CardBleu.astro";
+import CardPack from "../components/CardPack.astro";
 
 import placeHolderFonctionnalites from "../assets/placeHolderFonctionnalites.webp";
+import placeHolderPack from "../assets/placeHolderJeux.webp";
 ---
 
 <Layout>
@@ -55,5 +57,10 @@ import placeHolderFonctionnalites from "../assets/placeHolderFonctionnalites.web
             Nos leçons peuvent être données sous forme de packs pour un
             apprentissage précis sur les thèmes que vous souhaitez.
         </p>
+        <CardPack
+            nom='Pack "Démarrage"'
+            description="Ce pack comprend l'alphabet et de quoi pouvoir entretenir une conversation basique avec des personnes malentendantes."
+            image={placeHolderPack}
+        />
     </div>
 </Layout>
