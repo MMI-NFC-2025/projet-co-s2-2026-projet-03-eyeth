@@ -1,9 +1,13 @@
 ---
 import { Image } from "astro:assets";
-const { titre, description, image } = Astro.props;
+const { titre, description } = Astro.props;
 ---
 
-<a class="rounded-lg flex flex-col bg-bleu p-5 m-10 items-center" href="/">
-    <Image class="rounded-lg" src={image.src} alt={image.alt} />
-    <div class="text-xl font-semibold text-beige">titre</div>
+<a
+    class="rounded-lg flex flex-col bg-bleu p-5 m-10 items-center text-beige"
+    href="/"
+>
+    <!--<Image class="rounded-lg" src={image.src} alt={image.alt} />-->
+    <div class="text-xl font-semibold w-full">{titre}</div>
+    <p>{description}</p>
 </a>
