@@ -12,8 +12,8 @@ const { title } = Astro.props;
     alt="Fond du hero"
     class="absolute inset-0 w-screen -z-10"
 />
-<a href="/"
-    >{
+<a href="/">
+    {
         title !== "L'ŒIL DE LA PAROLE" && (
             <Image
                 src={fleche}
@@ -21,8 +21,8 @@ const { title } = Astro.props;
                 class=" absolute flex items-center w-5 scale-x-[-1] mt-10 ml-5"
             />
         )
-    }</a
->
+    }
+</a>
 
 <h1
     class="flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 pt-20 pb-28 text-center"

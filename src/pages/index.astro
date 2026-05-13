@@ -3,4 +3,29 @@ import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 ---
 
-<Layout><Hero title="L'ŒIL DE LA PAROLE" /></Layout>
+<Layout>
+    <Hero title="L'ŒIL DE LA PAROLE" />
+    <div class="m-7">
+        <h3 class="font-semibold text-xl">Qu'est-ce que EYETH ?</h3>
+        <p>
+            Bienvenue sur EYETH, la plateforme qui rend l'apprentissage de la
+            LSF (Langue des Signes Française) simple, visuel et interractif.
+            Ici, chaque signe devient une expérience ludique grâce à des
+            parcours courts, des exercices pratiques et des mises en situation
+            concrètes pour progresser à votre rythme.<br />
+            Apprenez à dire plus que "Je t'aime" en langue des signes !
+        </p>
+        <nav class="flex justify-center m-5">
+            <a
+                href="/"
+                class="p-2 text-lg text-beige bg-bleu hover:bg-rouge transition-colors duration-200 rounded inline-flex"
+            >
+                En savoir plus
+            </a>
+        </nav>
+    </div>
+
+    <div>
+        <h2>Nos fonctionnalités</h2>
+    </div>
+</Layout>

@@ -28,6 +28,18 @@
   --font-sans: 'Montserrat', sans-serif; 
 }
 
-h1 {
-  font-family: var(--font-crushed);
+@layer base {
+  h1 {
+    font-family: var(--font-crushed);
+  }
+
+  h2 {
+    background-color: var(--color-rouge);
+    font-weight: 500;
+    font-size: xx-large;
+    color: var(--color-beige);
+    text-align: center;
+
+    padding: 0.5rem 1rem;
+  }
 }
