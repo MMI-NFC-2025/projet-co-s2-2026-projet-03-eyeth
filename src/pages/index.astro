@@ -2,17 +2,13 @@
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import CardFonctionnalite from "../components/CardBleu.astro";
-import { Image } from "astro:assets";
-import placeHolderFonctionnalite from "../assets/placeHolderFonctionnalites.webp";
-import placeHolderJeux from "../assets/placeHolderJeux.webp";
-const placeHolder = {
-    src: { placeHolderFonctionnalite },
-    alt: "Image d'illustration",
-};
+
+import placeHolderFonctionnalites from "../assets/placeHolderFonctionnalites.webp";
 ---
 
 <Layout>
     <Hero title="L'ŒIL DE LA PAROLE" />
+
     <div class="m-7">
         <h3 class="font-semibold text-xl">Qu'est-ce que EYETH ?</h3>
         <p>
@@ -35,17 +31,21 @@ const placeHolder = {
 
     <div>
         <h2>Nos fonctionnalités</h2>
+
         <CardFonctionnalite
             titre="Jeux"
             description="Les jeux se jouent seuls ou à plusieurs"
+            image={placeHolderFonctionnalites}
         />
         <CardFonctionnalite
-            titre="Jeux"
+            titre="Leçons"
             description="Les jeux se jouent seuls ou à plusieurs"
+            image={placeHolderFonctionnalites}
         />
         <CardFonctionnalite
-            titre="Jeux"
+            titre="Dictionnaire"
             description="Les jeux se jouent seuls ou à plusieurs"
+            image={placeHolderFonctionnalites}
         />
     </div>
 
