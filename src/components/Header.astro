@@ -73,14 +73,14 @@ const navLinks = [
       id="line1"
       class="block w-88.25 h-0.5 top-18.75 bg-beige rounded-full mx-auto opacity-0 duration-300"
     ></span>
-    <ul class="flex flex-col px-5 py-4 gap-1">
+    <ul class="flex flex-col px-5 py-2 gap-1">
       <div>
         {
           navLinks.map((link, i) => (
             <li>
               <a
                 href={link.href}
-                class="mobile-link flex items-center gap-3 px-3 py-3 w-33.75 text-[24px]   text-beige hover:text-rouge text-base transition-colors duration-200 opacity-0 translate-y-2 "
+                class="mobile-link flex items-center gap-3 px-3 py-3 w-33.75 text-2xl   text-beige hover:text-rouge transition-colors duration-200 opacity-0 translate-y-2 "
                 style={`transition-delay: ${i * 50}ms`}
               >
                 {link.label}
@@ -98,7 +98,7 @@ const navLinks = [
       <li>
         <a
           href="/"
-          class="mobile-link flex items-center gap-3 px-3 pb-3 w-33.75 text-[24px] text-beige hover:text-rouge text-base transition-colors duration-200 opacity-0 translate-y-2"
+          class="mobile-link flex items-center gap-3 px-3 pb-3 w-33.75 text-2xl text-beige hover:text-rouge transition-colors duration-200 opacity-0 translate-y-2"
           style={`transition-delay: ${50}ms`}
         >
           Connexion
@@ -107,7 +107,7 @@ const navLinks = [
       <li>
         <a
           href="/"
-          class="mobile-link flex items-center gap-3 px-3 pb-3 w-33.75 text-[24px] text-beige hover:text-rouge text-base transition-colors duration-200 opacity-0 translate-y-2"
+          class="mobile-link flex items-center gap-3 px-3 pb-3 w-33.75 text-2xl text-beige hover:text-rouge transition-colors duration-200 opacity-0 translate-y-2"
           style={`transition-delay: ${50}ms`}
         >
           Inscription
@@ -138,10 +138,28 @@ const navLinks = [
 
   let isOpen = false;
 
+  // --- FONCTIONS NO-SCROLL ---
+  function lockScroll() {
+    // Calcule la largeur de la scrollbar pour éviter le décalage du contenu
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+  }
+
+  function unlockScroll() {
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = "";
+  }
+  // ---------------------------
+
   function openMenu() {
     isOpen = true;
     btn.setAttribute("aria-expanded", "true");
     menu.setAttribute("aria-hidden", "false");
+
+    // Activation du no-scroll
+    lockScroll();
 
     menu.style.maxHeight = menu.scrollHeight + "px";
 
@@ -174,6 +192,9 @@ const navLinks = [
     isOpen = false;
     btn.setAttribute("aria-expanded", "false");
     menu.setAttribute("aria-hidden", "true");
+
+    // Désactivation du no-scroll
+    unlockScroll();
 
     menu.style.maxHeight = "0";
 
@@ -208,6 +229,13 @@ const navLinks = [
 
   links.forEach((link) => {
     link.addEventListener("click", closeMenu);
+  });
+
+  // Fermeture avec la touche Echap (Accessibilité)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen) {
+      closeMenu();
+    }
   });
 
   window.addEventListener("resize", () => {
