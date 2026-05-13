@@ -3,7 +3,7 @@
 
 Éléménts à renseigner pour la soutenance :
 
-- [ ] Nom du projet : eyeth
+- [ ] Nom du projet : Eyeth
 - [ ] URL de la landing page :
 - [ ] URL de l'application finale :
 - [ ] URL de connexion au back office :
@@ -14,8 +14,8 @@
 
 ## 🚀 Équipe
 
-| Étudiants     | Prénom NOM    |
-| :------------ | :------------ |
-| Étudiant 1    | Solenne GEISS |
-| Étudiant 2    | Lola BROUART  |
-| Étudiant 3    | Aglaé NICOLLE |
+| Étudiants    |  Prénom NOM   |
+| :----------- | :------------ |
+| Étudiant 1   | Lola Brouart  |
+| Étudiant 2   | Solène Geiss  |
+| Étudiant 3   | Aglaé Nicolle |
