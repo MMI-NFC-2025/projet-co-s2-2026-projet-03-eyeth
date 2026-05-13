@@ -3,7 +3,8 @@ import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import CardFonctionnalite from "../components/CardBleu.astro";
 import { Image } from "astro:assets";
-import placeHolderFonctionnalite from "../assets/placeHolderFonctionnalites.svg";
+import placeHolderFonctionnalite from "../assets/placeHolderFonctionnalites.webp";
+import placeHolderJeux from "../assets/placeHolderJeux.webp";
 const placeHolder = {
     src: { placeHolderFonctionnalite },
     alt: "Image d'illustration",
@@ -46,5 +47,13 @@ const placeHolder = {
             titre="Jeux"
             description="Les jeux se jouent seuls ou à plusieurs"
         />
+    </div>
+
+    <div>
+        <h2>Apprenez par pack</h2>
+        <p class="my-5 mx-10">
+            Nos leçons peuvent être données sous forme de packs pour un
+            apprentissage précis sur les thèmes que vous souhaitez.
+        </p>
     </div>
 </Layout>
