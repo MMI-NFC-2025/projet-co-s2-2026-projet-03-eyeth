@@ -23,40 +23,45 @@ const navLinks = [
     aria-hidden="true"
     class="absolute inset-0 w-screen h-screen object-cover -z-10 opacity-0 transition-opacity duration-300"
   />
-  <div id="header" class="flex items-center justify-between h-16 bg-beige">
+  <div
+    id="header"
+    class="flex items-center justify-between h-18.75 bg-beige px-7.5"
+  >
     <a href="/">
       <Image
         src={logoBleu}
         alt="logoEyethBleu"
-        class="h-12"
+        class="h-5.5 w-auto"
         id="logo"
         data-logo-header={logoBleu.src}
         data-logo-menu={logoBeige.src}
       />
     </a>
-    <a id="bouton-connexion" href="/"
-      ><Image src={bonhommeBleu} alt="Bouton de connexion" /></a
-    >
-    <button
-      id="hamburger-btn"
-      aria-label="Ouvrir le menu"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-      class="md:hidden flex flex-col justify-center items-center w-screen h-screen gap-1.5"
-    >
-      <span
-        id="bar-1"
-        class="block w-6 h-0.5 bg-bleu rounded-full transition-all duration-300 origin-center"
-      ></span>
-      <span
-        id="bar-2"
-        class="block w-6 h-0.5 bg-bleu rounded-full transition-all duration-300"
-      ></span>
-      <span
-        id="bar-3"
-        class="block w-6 h-0.5 bg-bleu rounded-full transition-all duration-300 origin-center"
-      ></span>
-    </button>
+    <div class="flex items-center w-15.5 justify-between">
+      <a id="bouton-connexion" href="/"
+        ><Image src={bonhommeBleu} alt="Bouton de connexion" /></a
+      >
+      <button
+        id="hamburger-btn"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="md:hidden flex flex-col justify-center items-center gap-1.5"
+      >
+        <span
+          id="bar-1"
+          class="block w-7.25 h-0.5 bg-bleu rounded-full transition-all duration-300 origin-center"
+        ></span>
+        <span
+          id="bar-2"
+          class="block w-7.25 h-0.5 bg-bleu rounded-full transition-all duration-300"
+        ></span>
+        <span
+          id="bar-3"
+          class="block w-7.25 h-0.5 bg-bleu rounded-full transition-all duration-300 origin-center"
+        ></span>
+      </button>
+    </div>
   </div>
 
   <nav
@@ -64,20 +69,49 @@ const navLinks = [
     aria-hidden="true"
     class="overflow-hidden duration-300 ease-in-out"
   >
+    <span
+      id="line1"
+      class="block w-88.25 h-0.5 top-18.75 bg-beige rounded-full mx-auto opacity-0 duration-300"
+    ></span>
     <ul class="flex flex-col px-5 py-4 gap-1">
-      {
-        navLinks.map((link, i) => (
-          <li>
-            <a
-              href={link.href}
-              class="mobile-link flex items-center gap-3 px-3 py-3 text-beige hover:text-rouge font-medium text-base transition-colors duration-200 opacity-0 translate-y-2 "
-              style={`transition-delay: ${i * 50}ms`}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))
-      }
+      <div>
+        {
+          navLinks.map((link, i) => (
+            <li>
+              <a
+                href={link.href}
+                class="mobile-link flex items-center gap-3 px-3 py-3 w-33.75 text-[24px]   text-beige hover:text-rouge text-base transition-colors duration-200 opacity-0 translate-y-2 "
+                style={`transition-delay: ${i * 50}ms`}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </div>
+    </ul>
+    <span
+      class="block w-88.25 h-px top-18.75 bg-beige rounded-full mx-auto duration-300 my-4"
+    ></span>
+    <ul class="flex flex-col px-5 py-4 gap-1">
+      <li>
+        <a
+          href="/"
+          class="mobile-link flex items-center gap-3 px-3 pb-3 w-33.75 text-[24px] text-beige hover:text-rouge text-base transition-colors duration-200 opacity-0 translate-y-2"
+          style={`transition-delay: ${50}ms`}
+        >
+          Connexion
+        </a>
+      </li>
+      <li>
+        <a
+          href="/"
+          class="mobile-link flex items-center gap-3 px-3 pb-3 w-33.75 text-[24px] text-beige hover:text-rouge text-base transition-colors duration-200 opacity-0 translate-y-2"
+          style={`transition-delay: ${50}ms`}
+        >
+          Inscription
+        </a>
+      </li>
     </ul>
   </nav>
 </header>
@@ -98,6 +132,7 @@ const navLinks = [
   const header = document.getElementById("header")!;
   const menuBg = document.getElementById("menu-bg")!;
   const boutonConnexion = document.getElementById("bouton-connexion")!;
+  const line1 = document.getElementById("line1")!;
 
   let isOpen = false;
 
@@ -121,8 +156,9 @@ const navLinks = [
 
     bar1.classList.replace("bg-bleu", "bg-beige");
     bar3.classList.replace("bg-bleu", "bg-beige");
-    header.classList.remove("bg-beige");
     menuBg.classList.replace("opacity-0", "opacity-100");
+    line1.classList.replace("opacity-0", "opacity-10");
+    header.classList.remove("bg-beige");
     boutonConnexion.classList.add("opacity-0");
 
     links.forEach((link) => {
@@ -151,8 +187,9 @@ const navLinks = [
 
     bar1.classList.replace("bg-beige", "bg-bleu");
     bar3.classList.replace("bg-beige", "bg-bleu");
-    header.classList.add("bg-beige");
     menuBg.classList.replace("opacity-100", "opacity-0");
+    line1.classList.replace("opacity-10", "opacity-0");
+    header.classList.add("bg-beige");
     boutonConnexion.classList.remove("opacity-0");
 
     links.forEach((link) => {

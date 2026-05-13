@@ -5,18 +5,18 @@ import background from "../assets/backimage_footer.svg";
 ---
 
 <!-- vérifier avec colorable si le texte va être bien visible ou pas -->
-<footer class="flex flex-col relative overflow-hidden text-beige">
+<footer class="flex relative overflow-hidden text-beige">
     <Image
-        class="absolute z-1 object-cover object-top w-full"
+        class="absolute z-1 object-cover object-top w-full col-span-2"
         src={background}
         alt="Fond du footer"
     />
     <div
-        class="relative flex w-full box-border m-5 justify-center grid-cols-2 z-2"
+        class="relative w-full box-border m-5 justify-center grid grid-cols-2 z-2 p-8"
     >
-        <nav class="flex-1 max-w-75">
+        <nav class="flex max-w-75">
             <ul
-                class="flex flex-col gap-5 list-none u-list-unstyled font-[20px]"
+                class="flex flex-col gap-5 list-none text-xl font-semibold u-list-unstyled"
             >
                 <li>
                     <a href="/">Nos jeux</a>
@@ -33,7 +33,7 @@ import background from "../assets/backimage_footer.svg";
             </ul>
         </nav>
 
-        <nav class="flex-1 max-w-75">
+        <nav class="flex flex-col gap-5 list-none font-normal u-list-unstyled">
             <ul>
                 <li>
                     <a href="/"> Instragram </a>
@@ -43,6 +43,30 @@ import background from "../assets/backimage_footer.svg";
                 </li>
                 <li><a href="/">LinkedIn</a></li>
             </ul>
+        </nav>
+        <nav
+            class="flex flex-col gap-5 list-none u-list-unstyled pt-10 col-span-2"
+        >
+            <ul>
+                <li class="py-2">
+                    <a href="/" class="font-normal"> +33 05 05 05 05 05 </a>
+                </li>
+                <li class="py-2">
+                    <a href="/" class="text-2xl font-medium">
+                        eyeth@gmail.com
+                    </a>
+                </li>
+                <li class="py-2">
+                    <a href="/" class="font-normal">
+                        4 pl Lucien Tharradin <br />
+                        25200 Montbeliard
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <nav class="col-span-2 grid grid-cols-subgrid grid-cols-2cols-2 pt-5">
+            <a href="/">Mentions legales</a>
+            <a href="/">Politique de confidentialite</a>
         </nav>
     </div>
 </footer>
