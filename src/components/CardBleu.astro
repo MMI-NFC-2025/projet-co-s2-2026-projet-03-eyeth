@@ -1,4 +1,9 @@
 ---
 import { Image } from "astro:assets";
-import placeHolderFonctionnalites from "../assets/placeHolderFonctionnalites.svg";
+const { titre, description, image } = Astro.props;
 ---
+
+<a class="rounded-lg flex flex-col bg-bleu p-5 m-10 items-center" href="/">
+    <Image class="rounded-lg" src={image.src} alt={image.alt} />
+    <div class="text-xl font-semibold text-beige">titre</div>
+</a>

@@ -1,6 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
+import CardFonctionnalite from "../components/CardBleu.astro";
+import { Image } from "astro:assets";
+import placeHolderFonctionnalite from "../assets/placeHolderFonctionnalites.svg";
+const placeHolder = {
+    src: { placeHolderFonctionnalite },
+    alt: "Image d'illustration",
+};
 ---
 
 <Layout>
@@ -27,5 +34,10 @@ import Hero from "../components/Hero.astro";
 
     <div>
         <h2>Nos fonctionnalités</h2>
+        <CardFonctionnalite
+            titre="Jeu"
+            description="Les jeux se jouent seuls ou à plusieurs"
+            image={placeHolder}
+        />
     </div>
 </Layout>
