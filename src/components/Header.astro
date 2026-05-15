@@ -8,7 +8,7 @@ import bonhommeBleu from "../assets/bonhommeBleu.svg";
 
 const navLinks = [
   { label: "Accueil", href: "/" },
-  { label: "A propos", href: "/" },
+  { label: "A propos", href: "/info" },
   { label: "Services", href: "/" },
   { label: "Portfolio", href: "/" },
   { label: "Contact", href: "/" },
@@ -146,19 +146,15 @@ const navLinks = [
     isOpen = !isOpen;
 
     if (isOpen) {
-      // --- OUVERTURE ---
       btn.setAttribute("aria-expanded", "true");
       menu.setAttribute("aria-hidden", "false");
 
-      // 1. Hauteur du menu
       menu.classList.remove("h-0");
-      menu.classList.add("h-screen"); // Ou une hauteur fixe si préféré
+      menu.classList.add("h-screen");
 
-      // 2. Fond
       menuBg.classList.remove("h-0", "opacity-0");
       menuBg.classList.add("h-screen", "opacity-100");
 
-      // 3. Header & Logo
       header.classList.remove("bg-beige");
       logo.style.opacity = "0";
       setTimeout(() => {
@@ -166,7 +162,6 @@ const navLinks = [
         logo.style.opacity = "1";
       }, 150);
 
-      // 4. Hamburger
       bar1.classList.replace("bg-bleu", "bg-beige");
       bar3.classList.replace("bg-bleu", "bg-beige");
       bar1.style.transform = "translateY(8px) rotate(45deg)";
@@ -174,17 +169,13 @@ const navLinks = [
       bar2.style.transform = "scaleX(0)";
       bar3.style.transform = "translateY(-8px) rotate(-45deg)";
 
-      // 5. Lignes décoratives
       line1.classList.remove("opacity-0");
       line1.classList.add("opacity-10");
       line2.classList.remove("opacity-0");
       line2.classList.add("opacity-100");
 
-      // 6. Bouton connexion
       boutonConnexion.classList.add("opacity-0", "pointer-events-none");
 
-      // 7. LIENS (La partie critique)
-      // On utilise requestAnimationFrame pour s'assurer que le navigateur a appliqué le changement de hauteur avant d'animer l'opacité
       requestAnimationFrame(() => {
         links.forEach((link) => {
           link.classList.remove(
@@ -196,34 +187,27 @@ const navLinks = [
         });
       });
 
-      // Lock scroll
       const scrollbarWidth =
         window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = "hidden";
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     } else {
-      // --- FERMETURE ---
       btn.setAttribute("aria-expanded", "false");
       menu.setAttribute("aria-hidden", "true");
 
-      // 1. LIENS (Masquer en premier pour l'effet visuel)
       links.forEach((link) => {
         link.classList.remove("opacity-100", "translate-y-0");
         link.classList.add("opacity-0", "translate-y-4", "pointer-events-none");
       });
 
-      // 2. Fond & Hauteur (attendre un peu ou faire simultané)
       menuBg.classList.remove("h-screen", "opacity-100");
       menuBg.classList.add("h-0", "opacity-0");
 
-      // On doit attendre la fin de la transition des liens pour réduire la hauteur si on veut un effet fluide,
-      // mais ici on réduit la hauteur du nav directement pour cacher le débordement
       setTimeout(() => {
         menu.classList.remove("h-screen");
         menu.classList.add("h-0");
-      }, 100); // Petit délai pour laisser l'opacité se jouer
+      }, 100);
 
-      // 3. Header & Logo
       header.classList.add("bg-beige");
       logo.style.opacity = "0";
       setTimeout(() => {
@@ -231,7 +215,6 @@ const navLinks = [
         logo.style.opacity = "1";
       }, 150);
 
-      // 4. Hamburger
       bar1.classList.replace("bg-beige", "bg-bleu");
       bar3.classList.replace("bg-beige", "bg-bleu");
       bar1.style.transform = "";
@@ -239,16 +222,13 @@ const navLinks = [
       bar2.style.transform = "";
       bar3.style.transform = "";
 
-      // 5. Lignes
       line1.classList.remove("opacity-10");
       line1.classList.add("opacity-0");
       line2.classList.remove("opacity-100");
       line2.classList.add("opacity-0");
 
-      // 6. Bouton connexion
       boutonConnexion.classList.remove("opacity-0", "pointer-events-none");
 
-      // Unlock scroll
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
     }

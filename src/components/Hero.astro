@@ -7,25 +7,27 @@ import fleche from "../assets/arrow_beige.svg";
 const { title } = Astro.props;
 ---
 
-<Image
-    src={backHero}
-    alt="Fond du hero"
-    class="absolute inset-0 w-screen -z-10"
-/>
-<a href="/">
-    {
-        title !== "L'ŒIL DE LA PAROLE" && (
-            <Image
-                src={fleche}
-                alt="Fleche de retour à la page précédente"
-                class=" absolute flex items-center w-5 scale-x-[-1] mt-10 ml-5"
-            />
-        )
-    }
-</a>
+<div class="h-80 flex items-center">
+    <Image
+        src={backHero}
+        alt="Fond du hero"
+        class="absolute inset-0 w-screen -z-10"
+    />
+    <a href="/">
+        {
+            title !== "La langue des signes" && (
+                <Image
+                    src={fleche}
+                    alt="Fleche de retour à la page précédente"
+                    class=" absolute flexs w-5 scale-x-[-1] top-23 left-5"
+                />
+            )
+        }
+    </a>
 
-<h1
-    class="flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 pt-20 pb-28 text-center"
->
-    {title}
-</h1>
+    <h1
+        class="relative flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 pt-20 pb-28 text-center"
+    >
+        {title}
+    </h1>
+</div>
