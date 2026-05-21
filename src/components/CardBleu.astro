@@ -1,11 +1,11 @@
 ---
 import { Image } from "astro:assets";
-const { titre, description, image } = Astro.props;
+const { titre, description, image, href = "/" } = Astro.props;
 ---
 
 <a
     class="rounded-lg flex flex-col bg-bleu p-5 m-10 items-center text-beige"
-    href="/"
+    href={href}
 >
     <Image
         class="rounded-lg w-full h-auto object-cover"
