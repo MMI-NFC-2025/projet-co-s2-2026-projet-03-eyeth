@@ -1,10 +1,45 @@
 @import "tailwindcss";
 
-@theme {
+@font-face {
+  font-family: 'Crushed';
+  src: url('/fonts/Crushed-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
-   --color-bleu: #190087;
-   --color-rouge: #e03b57;
-   --color-beige: #fef2d4;
-   --color-system-rouge: #f22d06;
-   --color-system-vert: #b8ce52;
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-bleu: #190087;
+  --color-rouge: #e03b57;
+  --color-beige: #fef2d4;
+  --color-system-rouge: #f22d06;
+  --color-system-vert: #b8ce52;
+
+
+  --font-crushed: 'Crushed', sans-serif;
+  --font-sans: 'Montserrat', sans-serif; 
+}
+
+@layer base {
+  h1 {
+    font-family: var(--font-crushed);
+  }
+
+  h2 {
+    background-color: var(--color-rouge);
+    font-weight: 600;
+    font-size: x-large;
+    color: var(--color-beige);
+    text-align: center;
+
+    padding: 0.5rem 1rem;
+  }
 }

@@ -7,12 +7,12 @@ import background from "../assets/backimage_footer.svg";
 <!-- vérifier avec colorable si le texte va être bien visible ou pas -->
 <footer class="flex relative overflow-hidden text-beige">
     <Image
-        class="absolute z-1 object-cover object-top w-full col-span-2"
+        class="absolute z-1 object-cover object-top w-full col-span-2 bottom-0"
         src={background}
         alt="Fond du footer"
     />
     <div
-        class="relative w-full box-border m-5 justify-center grid grid-cols-2 z-2 p-8"
+        class="relative w-full box-border m-5 justify-center grid grid-cols-2 z-2 p-8 pr-0"
     >
         <nav class="flex max-w-75">
             <ul
@@ -22,10 +22,10 @@ import background from "../assets/backimage_footer.svg";
                     <a href="/">Nos jeux</a>
                 </li>
                 <li>
-                    <a href="/aboutus">Lecons</a>
+                    <a href="/aboutus">Leçons</a>
                 </li>
                 <li>
-                    <a href="/programme">A propos</a>
+                    <a href="/info">A propos</a>
                 </li>
                 <li>
                     <a href="/artistes">Nous contacter</a>
@@ -59,14 +59,16 @@ import background from "../assets/backimage_footer.svg";
                 <li class="py-2">
                     <a href="/" class="font-normal">
                         4 pl Lucien Tharradin <br />
-                        25200 Montbeliard
+                        25200 Montbéliard
                     </a>
                 </li>
             </ul>
         </nav>
-        <nav class="col-span-2 grid grid-cols-subgrid grid-cols-2cols-2 pt-5">
-            <a href="/">Mentions legales</a>
-            <a href="/">Politique de confidentialite</a>
+        <nav
+            class="col-span-2 grid grid-cols-subgrid grid-cols-2cols-2 pt-5 text-xs"
+        >
+            <a href="/">Mentions légales</a>
+            <a href="/">Politique de confidentialité</a>
         </nav>
     </div>
 </footer>

@@ -1,0 +1,33 @@
+---
+import "../styles/global.css";
+import { Image } from "astro:assets";
+import backHero from "../assets/hero.webp";
+import fleche from "../assets/arrow_beige.svg";
+
+const { title } = Astro.props;
+---
+
+<div class="flex items-center">
+    <Image
+        src={backHero}
+        alt="Fond du hero"
+        class="absolute inset-0 w-screen -z-10 max-h-170"
+    />
+    <a href="/">
+        {
+            title !== "La langue des signes" && (
+                <Image
+                    src={fleche}
+                    alt="Fleche de retour à la page précédente"
+                    class=" absolute flexs w-5 scale-x-[-1] top-23 left-5"
+                />
+            )
+        }
+    </a>
+
+    <h1
+        class="relative flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 pt-20 pb-28 text-center"
+    >
+        {title}
+    </h1>
+</div>
