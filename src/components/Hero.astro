@@ -18,7 +18,7 @@ const { title = "", hideImage = false, hideButton = false } = Astro.props;
             />
 
             {!hideButton && (
-                <a href="/" class="absolute top-24 left-5 z-20">
+                <a href="/" class="absolute top-3 left-5 z-20">
                     <Image
                         src={lightArrow}
                         alt="Retour"
@@ -26,17 +26,18 @@ const { title = "", hideImage = false, hideButton = false } = Astro.props;
                     />
                 </a>
             )}
-
-            <h1 class="relative flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 pt-20 pb-28 text-center">
+        <div class="relative flex items-center justify-center text-6xl text-beige   text-center mx-auto">
+            <h1 class="flex">
                 {title}
             </h1>
+            </div>
         </div>
     ) : (
         <div class="relative flex flex-col items-center w-full py-5">
             {!hideButton && (
                 <a
                     href="/"
-                    class="absolute top-0 left-5 z-20 hover:opacity-80 transition-opacity"
+                    class="absolute top-0 left-5 z-20"
                 >
                     <Image
                         src={darkArrow}
