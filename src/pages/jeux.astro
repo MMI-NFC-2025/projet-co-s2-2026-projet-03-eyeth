@@ -4,6 +4,7 @@ import { Image } from "astro:assets";
 import placeHolder from "../assets/placeHolderJeuxCarrousel.svg";
 import flechesGauche from "../assets/button_lightLeft.svg";
 import flechesDroite from "../assets/button_lightRight.svg";
+import Hero from "../components/Hero.astro";
 
 const elements = [
     {
@@ -28,6 +29,7 @@ const elements = [
 ---
 
 <Layout title="jeux" hideFooter="true">
+    <Hero hideImage="true" />
     <div
         class="relative h-[calc(100dvh-4.6875rem)] w-full max-w-5xl aspect-video bg-beige overflow-hidden group"
     >
@@ -57,7 +59,7 @@ const elements = [
                 }
             </div>
 
-            <div class="flex gap-8 m-3">
+            <div class="flex gap-8">
                 <button
                     id="btn-prev"
                     class="rounded-full hover:bg-bleu/40 transition-colors duration-200 focus:outline-none"

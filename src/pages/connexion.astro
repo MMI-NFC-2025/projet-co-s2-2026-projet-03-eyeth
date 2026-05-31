@@ -1,0 +1,40 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import CardFonctionnalite from "../components/CardBleu.astro";
+import CardPack from "../components/CardPack.astro";
+
+import placeHolderFonctionnalites from "../assets/placeHolderFonctionnalites.webp";
+import placeHolderPack from "../assets/placeHolderJeux.webp";
+import flechesGauche from "../assets/button_lightLeft.svg";
+import flechesDroite from "../assets/button_lightRight.svg";
+
+const items = [
+    {
+        nom: 'Pack "Démarrage"',
+        description: "L'alphabet et les bases.",
+        image: placeHolderPack,
+        href: "/packs/demarrage",
+    },
+    {
+        nom: 'Pack "Conversation"',
+        description: "Scénarios du quotidien.",
+        image: placeHolderPack,
+        href: "/packs/conversation",
+    },
+    {
+        nom: 'Pack "Expert"',
+        description: "Concepts professionnels.",
+        image: placeHolderPack,
+        href: "/packs/expert",
+    },
+    {
+        nom: 'Pack "Culture"',
+        description: "Histoire et culture sourde.",
+        image: placeHolderPack,
+        href: "/packs/culture",
+    },
+];
+---
+
+<Layout title="connexion" hideFooter="true" />
