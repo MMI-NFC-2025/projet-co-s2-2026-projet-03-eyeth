@@ -3,9 +3,9 @@ import Layout from "../layouts/Layout.astro"; import Hero from
 "../components/Hero.astro";
 ---
 
-<Layout title="connexion" hideFooter="true" class="max-h-screen">
+<Layout title="connexion" hideFooter="true">
     <Hero hideImage="true" />
-    <h2>Content de vous revoir !</h2>
+    <h2>Bienvenue !</h2>
 
     <div class="flex items-center justify-center px-4 py-8">
         <div class="w-full max-w-md">
@@ -16,6 +16,36 @@ import Layout from "../layouts/Layout.astro"; import Hero from
                 onsubmit="event.preventDefault();"
             >
                 <div class="space-y-5">
+                    <div
+                        class="relative border-bleu border bg-white rounded-lg pl-4 pt-2"
+                    >
+                        <label for="nom" class="block mb-2"> Nom </label>
+                        <input
+                            id="nom"
+                            name="nom"
+                            type="nom"
+                            autocomplete="nom"
+                            required
+                            class="block w-full px-4 pb-3
+                             focus:outline-none text-sm font-light"
+                            placeholder="Votre nom de famille"
+                        />
+                    </div>
+                    <div
+                        class="relative border-bleu border bg-white rounded-lg pl-4 pt-2"
+                    >
+                        <label for="prenom" class="block mb-2"> Prénom </label>
+                        <input
+                            id="prenom"
+                            name="prenom"
+                            type="prenom"
+                            autocomplete="prenom"
+                            required
+                            class="block w-full px-4 pb-3
+                             focus:outline-none text-sm font-light"
+                            placeholder="Votre prénom"
+                        />
+                    </div>
                     <div
                         class="relative border-bleu border bg-white rounded-lg pl-4 pt-2"
                     >
@@ -51,21 +81,38 @@ import Layout from "../layouts/Layout.astro"; import Hero from
                     />
                 </div>
             </form>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input
+                        id="pc-cgu"
+                        name="pc-cgu"
+                        type="checkbox"
+                        class="h-4 w-4 my-5 accent-bleu focus:ring-bleu border-bleu rounded  "
+                    />
+                    <label
+                        for="remember-me"
+                        class="ml-2 block text-bleu  text-sm"
+                    >
+                        J'accepte la <a href="/politiqConf">politique de confidentialité</a
+                        > et les <a href="#">conditions générales d'utilisation</a>
+                    </label>
+                </div>
+            </div>
 
             <div>
                 <button
                     type="submit"
-                    class="group relative w-full flex justify-center py-3 px-4 my-6 border border-transparent rounded-lg text-white bg-bleu text-xl"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-bleu text-xl"
                 >
-                    Se connecter
+                    S'inscrire
                 </button>
             </div>
 
-            <div class="text-center mt-4 font-light">
+            <div class="text-center mt-3 font-light">
                 <p class="">
-                    Je n'ai pas de compte
-                    <a href="/inscription" class="font-normal underline">
-                        Inscription
+                    J'ai déjà un compte
+                    <a href="/connexion" class="font-normal underline">
+                        Connexion
                     </a>
                 </p>
             </div>
