@@ -39,7 +39,11 @@ const navLinks = [
       />
     </a>
     <div class="flex items-center w-15.5 justify-between relative z-50">
-      <a id="bouton-connexion" href="/" class="transition-opacity duration-300">
+      <a
+        id="bouton-connexion"
+        href="/connexion"
+        class="transition-opacity duration-300"
+      >
         <Image src={bonhommeBleu} alt="Bouton de connexion" />
       </a>
       <button
@@ -83,7 +87,7 @@ const navLinks = [
               <a
                 href={link.href}
                 data-index={i}
-                class="mobile-link px-3 py-2 text-xl text-beige hover:text-rouge transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none inline-flex"
+                class="mobile-link px-3 py-2 text-xl text-beige  transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none inline-flex"
                 style={`transition-delay: ${i * 50}ms`}
               >
                 {link.label}
@@ -102,7 +106,7 @@ const navLinks = [
         <li>
           <a
             href="/"
-            class="mobile-link block px-3 py-3 text-lg text-beige hover:text-rouge transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
+            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
             style={`transition-delay: ${250}ms`}
           >
             Connexion
@@ -111,7 +115,7 @@ const navLinks = [
         <li>
           <a
             href="/"
-            class="mobile-link block px-3 py-3 text-lg text-beige hover:text-rouge transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
+            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
             style={`transition-delay: ${300}ms`}
           >
             Inscription

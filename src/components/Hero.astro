@@ -14,14 +14,11 @@ const { title = "", hideImage = false, hideButton = false } = Astro.props;
             <Image
                 src={backHero}
                 alt="Fond du hero"
-                class="absolute inset-0 w-full h-full object-cover -z-10"
+                class="absolute inset-0 w-screen -z-10 max-h-130"
             />
 
             {!hideButton && (
-                <a
-                    href="/"
-                    class="absolute top-24 left-5 z-20 hover:opacity-80 transition-opacity"
-                >
+                <a href="/" class="absolute top-24 left-5 z-20">
                     <Image
                         src={lightArrow}
                         alt="Retour"
@@ -30,12 +27,12 @@ const { title = "", hideImage = false, hideButton = false } = Astro.props;
                 </a>
             )}
 
-            <h1 class="relative w-full text-center text-6xl text-beige px-12 mb-5 font-bold">
+            <h1 class="relative flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 pt-20 pb-28 text-center">
                 {title}
             </h1>
         </div>
     ) : (
-        <div class="relative flex flex-col items-center w-full py-3">
+        <div class="relative flex flex-col items-center w-full py-5">
             {!hideButton && (
                 <a
                     href="/"
