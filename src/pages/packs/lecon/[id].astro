@@ -1,288 +1,423 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import { Image } from "astro:assets";
-import backImg from "../../../assets/menu.webp";
-import { getMotsForPack } from "../../../js/backend";
+// src/pages/lecon/[packId].astro
+import { getMotsForPack } from "../../../js/backend.js"; // Import depuis VOTRE fichier existant
 
-const { id } = Astro.params; // ✅ Fix #4 : destructurer l'id
-const exerciseTypes = ["video-to-choice", "video-to-text", "word-to-video"];
-const mots = getMotsForPack(id);
+export const prerender = false;
+
+const { packId } = Astro.params;
+let mots = [];
+
+try {
+    // Appel de votre fonction existante dans backend.js
+    mots = await getMotsForPack(packId);
+} catch (error) {
+    console.error("Erreur lors de la récupération des mots:", error);
+    mots = [];
+}
+
+// Fonction de mélange (Fisher-Yates) pour aléatoire
 ---
 
-<Layout title="Nouvelle Leçon" hideFooter="true">
-    <Image src={backImg} alt="Fond" class="absolute inset-0 h-screen -z-10" />
-    <div
-        class="h-[calc(100dvh-9.125rem)] flex flex-col items-center justify-center"
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>Leçon Mobile</title>
+        <style>
+            /* Tailwind CSS v4 */
+            @import "tailwindcss";
+
+            /* Optimisations spécifiques Mobile */
+            body {
+                touch-action: manipulation; /* Évite le zoom au double-tap */
+                overscroll-behavior: none; /* Empêche le refresh par swipe */
+                user-select: none; /* Empêche la sélection de texte accidentelle */
+            }
+            video {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 9/16; /* Format vertical */
+                object-fit: cover;
+                background: #000;
+                border-radius: 0.75rem; /* rounded-xl */
+                box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            }
+            .btn-option {
+                @apply w-full p-4 mb-3 text-lg font-semibold rounded-xl border-2 border-slate-200 bg-white active:scale-95 transition-transform duration-100 text-slate-800 shadow-sm;
+            }
+            .btn-option.correct {
+                @apply border-green-500 bg-green-100 text-green-800 !important;
+            }
+            .btn-option.wrong {
+                @apply border-red-500 bg-red-100 text-red-800 opacity-70 !important;
+            }
+            /* Grille pour les vidéos */
+            .video-grid {
+                @apply w-full grid grid-cols-2 gap-3;
+            }
+            .video-btn {
+                @apply aspect-9/16 bg-slate-200 rounded-xl overflow-hidden relative active:scale-95 transition-transform border-2 border-transparent;
+            }
+            .video-btn.correct {
+                @apply border-green-500;
+            }
+            .video-btn.wrong {
+                @apply border-red-500 opacity-70;
+            }
+        </style>
+    </head>
+    <body
+        class="bg-slate-50 text-slate-900 font-sans h-screen flex flex-col overflow-hidden"
     >
-        <div
-            id="setup-screen"
-            class="flex flex-col items-center p-6 text-center w-full"
+        <!-- Header -->
+        <header class="p-4 bg-white shadow-sm z-10 flex-none">
+            <h1 class="text-xl font-bold text-center truncate">
+                Pack: {packId}
+            </h1>
+            <div
+                class="flex justify-between mt-2 text-sm text-slate-500 font-medium"
+            >
+                <span id="progress-text">Chargement...</span>
+                <span id="score-text">Score: 0</span>
+            </div>
+            <div
+                class="w-full bg-slate-200 h-2.5 mt-2 rounded-full overflow-hidden"
+            >
+                <div
+                    id="progress-bar"
+                    class="h-full bg-blue-600 w-0 transition-all duration-300"
+                >
+                </div>
+            </div>
+        </header>
+
+        <!-- Zone de Jeu -->
+        <main
+            class="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-start relative w-full"
         >
-            <h1 class="text-6xl text-beige mb-2">Objectif</h1>
-            <p class="text-beige text-lg mb-8">
-                Combien d'exercices voulez-vous faire ?
-            </p>
-            <div class="space-y-4">
-                <button
-                    onclick="startLesson(10)"
-                    class="w-full py-4 px-6 bg-beige text-bleu font-bold rounded-xl text-xl"
-                    >10 exercices (Rapide)</button
-                >
-                <button
-                    onclick="startLesson(15)"
-                    class="w-full py-4 px-6 bg-beige text-bleu font-bold rounded-xl text-xl"
-                    >15 exercices (Standard)</button
-                >
-                <button
-                    onclick="startLesson(20)"
-                    class="w-full py-4 px-6 bg-beige text-bleu font-bold rounded-xl text-xl"
-                    >20 exercices (Expert)</button
-                >
-            </div>
-        </div>
-
-        <div id="game-screen" class="hidden w-full max-w-2xl">
-            <div class="mb-6">
-                <div
-                    class="flex justify-between text-sm font-semibold text-slate-600 mb-2"
-                >
-                    <span>Progression</span>
-                    <span id="progress-text">0 / 10</span>
-                </div>
-                <div
-                    class="w-full bg-slate-200 rounded-full h-4 overflow-hidden"
-                >
-                    <div
-                        id="progress-bar"
-                        class="bg-green-500 h-4 rounded-full transition-all duration-500 ease-out"
-                        style="width: 0%"
-                    >
-                    </div>
+            <!-- Conteneur dynamique -->
+            <div
+                id="game-container"
+                class="w-full max-w-md flex flex-col items-center pb-10"
+            >
+                <!-- Le contenu est injecté par JS -->
+                <div class="text-center text-slate-400 mt-10">
+                    Chargement de la leçon...
                 </div>
             </div>
-            <div
-                id="exercise-container"
-                class="bg-white p-6 rounded-2xl shadow-lg min-h-100 flex flex-col items-center justify-center"
-            >
-            </div>
-            <div
-                id="feedback-area"
-                class="hidden mt-4 p-4 rounded-xl text-center font-bold text-lg"
-            >
-            </div>
-            <button
-                id="next-btn"
-                class="hidden w-full mt-4 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition"
-                >Continuer</button
-            >
-        </div>
-    </div>
+        </main>
 
-    <script is:inline define:vars={{ mots, exerciseTypes }}>
-        // ✅ Fix #1 : mots et exerciseTypes injectés via define:vars
+        <script>
+            const allMots = JSON.parse("---JSON.stringify(mots)---");
 
-        let allPackMots = mots; // ✅ Fix #2 : source unique pour les mauvaises réponses
-        let currentmots = [];
-        let currentIndex = 0;
-        let totalExercises = 0;
+            let currentIndex = 0;
+            let score = 0;
+            let isAnswering = false;
 
-        function shuffleArray(array) {
-            const newArr = [...array];
-            for (let i = newArr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            const container = document.getElementById("game-container");
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+            const scoreText = document.getElementById("score-text");
+
+            function handleChoice(
+                element: HTMLButtonElement | HTMLInputElement,
+                isCorrect: boolean,
+                isVideoBtn: boolean | null,
+                submitBtn = null,
+            ) {
+                if (isAnswering) return;
+                isAnswering = true;
+
+                if (!element) return;
+
+                if (isCorrect) {
+                    if (isVideoBtn === true) {
+                        element.classList.add("correct");
+                    } else if (submitBtn) {
+                        // Mode écriture : on style l'input et le bouton
+                        element.classList.add("correct");
+                        submitBtn.textContent = "Correct !";
+                        submitBtn.classList.remove(
+                            "bg-blue-600",
+                            "active:bg-blue-700",
+                        );
+                        submitBtn.classList.add("bg-green-600");
+                    } else {
+                        // Mode QCM texte
+                        element.classList.add("correct");
+                    }
+                    score += 10;
+                } else {
+                    if (isVideoBtn === true) {
+                        element.classList.add("wrong");
+                    } else if (submitBtn) {
+                        element.classList.add("wrong");
+                        submitBtn.textContent = "Erreur";
+                        submitBtn.classList.remove(
+                            "bg-blue-600",
+                            "active:bg-blue-700",
+                        );
+                        submitBtn.classList.add("bg-red-600");
+                    } else {
+                        element.classList.add("wrong");
+                    }
+                }
+
+                // Mise à jour du score à l'écran
+                if (scoreText) {
+                    scoreText.textContent = `Score: ${score}`;
+                }
+
+                // Passage à la question suivante après un délai
+                setTimeout(() => {
+                    currentIndex++;
+                    renderLesson();
+                }, 1500);
             }
-            return newArr;
-        }
 
-        // ✅ Fix #3 : une seule définition, exposée sur window directement
-        function startLesson(count) {
-            totalExercises = count;
-            const selectedItems = shuffleArray(allPackMots).slice(0, count);
-            currentmots = selectedItems.map((item) => {
-                const randomType =
-                    exerciseTypes[
-                        Math.floor(Math.random() * exerciseTypes.length)
-                    ];
-                return { ...item, type: randomType };
-            });
-            currentIndex = 0;
-            document.getElementById("setup-screen").classList.add("hidden");
-            document.getElementById("game-screen").classList.remove("hidden");
-            renderExercise();
-        }
-        window.startLesson = startLesson;
+            // ============================================================
+            // 3. AUTRES FONCTIONS UTILITAIRES ET DE RENDU
+            // ============================================================
 
-        function updateProgress() {
-            const percent = (currentIndex / totalExercises) * 100;
-            document.getElementById("progress-bar").style.width = `${percent}%`;
-            document.getElementById("progress-text").innerText =
-                `${currentIndex} / ${totalExercises}`;
-        }
+            function updateProgress() {
+                if (!progressBar || !progressText || !scoreText) return;
+                if (!allMots || allMots.length === 0) return;
 
-        function renderExercise() {
-            if (currentIndex >= totalExercises) {
-                finishLesson();
-                return;
+                const pct = (currentIndex / allMots.length) * 100;
+                progressBar.style.width = `${pct}%`;
+                progressText.textContent = `Mot ${currentIndex + 1}/${allMots.length}`;
+                scoreText.textContent = `Score: ${score}`;
             }
-            const currentData = currentmots[currentIndex];
-            const container = document.getElementById("exercise-container");
-            const feedback = document.getElementById("feedback-area");
-            const nextBtn = document.getElementById("next-btn");
-            feedback.classList.add("hidden");
-            nextBtn.classList.add("hidden");
-            container.innerHTML = "";
-            updateProgress();
-            if (currentData.type === "video-to-choice")
-                renderVideoToChoice(currentData, container);
-            else if (currentData.type === "video-to-text")
-                renderVideoToText(currentData, container);
-            else if (currentData.type === "word-to-video")
-                renderWordToVideo(currentData, container);
-        }
 
-        function renderVideoToChoice(data, container) {
-            const title = document.createElement("h2");
-            title.className = "text-xl font-bold mb-4 text-slate-700";
-            title.innerText = "Quel est ce mot ?";
-            container.appendChild(title);
+            function shuffleArray(array) {
+                return array.sort(() => Math.random() - 0.5);
+            }
 
-            const video = document.createElement("video");
-            video.src = data.videoSrc;
-            video.controls = true;
-            video.className =
-                "w-full max-w-md rounded-lg mb-6 aspect-video bg-black";
-            video.autoplay = true;
-            container.appendChild(video);
+            function getLessonType(index) {
+                return index % 3; // 0: Vidéo->Mot, 1: Mot->Vidéo, 2: Vidéo->Écriture
+            }
 
-            // ✅ Fix #2 : utiliser allPackMots au lieu de lessonsData
-            const wrongAnswers = shuffleArray(
-                allPackMots.filter((i) => i.id !== data.id),
-            ).slice(0, 3);
-            const options = shuffleArray([...wrongAnswers, data]);
-            const grid = document.createElement("div");
-            grid.className = "grid grid-cols-2 gap-4 w-full";
-            options.forEach((opt) => {
-                const btn = document.createElement("button");
-                btn.className =
-                    "p-4 bg-slate-100 hover:bg-indigo-100 border-2 border-transparent hover:border-indigo-500 rounded-xl font-bold text-lg transition";
-                btn.innerText = opt.word;
-                btn.onclick = () => checkAnswer(opt.id === data.id, data.word);
-                grid.appendChild(btn);
-            });
-            container.appendChild(grid);
-        }
+            function renderLesson() {
+                if (!container) {
+                    console.error(
+                        "Erreur : Le conteneur de jeu est introuvable.",
+                    );
+                    return;
+                }
 
-        function renderVideoToText(data, container) {
-            const title = document.createElement("h2");
-            title.className = "text-xl font-bold mb-4 text-slate-700";
-            title.innerText = "Écrivez ce que vous voyez";
-            container.appendChild(title);
+                if (!allMots || currentIndex >= allMots.length) {
+                    renderEndScreen();
+                    return;
+                }
 
-            const video = document.createElement("video");
-            video.src = data.videoSrc;
-            video.controls = true;
-            video.className =
-                "w-full max-w-md rounded-lg mb-6 aspect-video bg-black";
-            video.autoplay = true;
-            container.appendChild(video);
+                isAnswering = false;
+                container.innerHTML = "";
+                updateProgress();
 
-            const input = document.createElement("input");
-            input.type = "text";
-            input.placeholder = "Tapez le mot ici...";
-            input.className =
-                "w-full p-4 border-2 border-slate-300 rounded-xl text-lg mb-4 focus:border-indigo-500 focus:outline-none";
+                const currentData = allMots[currentIndex];
+                const type = getLessonType(currentIndex);
 
-            const submitBtn = document.createElement("button");
-            submitBtn.className =
-                "w-full py-3 bg-indigo-600 text-white font-bold rounded-xl";
-            submitBtn.innerText = "Valider";
-            submitBtn.onclick = () => {
-                const isCorrect =
-                    input.value.trim().toLowerCase() ===
-                    data.word.toLowerCase();
-                checkAnswer(isCorrect, data.word);
-            };
-            container.appendChild(input);
-            container.appendChild(submitBtn);
-            input.addEventListener("keypress", (e) => {
-                if (e.key === "Enter") submitBtn.click();
-            });
-        }
+                // Préparation des distracteurs (fausses réponses)
+                const otherMots = allMots.filter(
+                    (m) => m.id !== currentData.id,
+                );
+                const distracteurs = shuffleArray(otherMots).slice(0, 3);
+                const options = shuffleArray([currentData, ...distracteurs]);
 
-        function renderWordToVideo(data, container) {
-            const title = document.createElement("h2");
-            title.className =
-                "text-xl font-bold mb-6 text-slate-700 text-center";
-            title.innerText = `Trouvez la vidéo pour : "${data.word}"`;
-            container.appendChild(title);
+                if (type === 0) {
+                    renderVideoToWord(currentData, options);
+                } else if (type === 1) {
+                    renderWordToVideo(currentData, options);
+                } else {
+                    renderVideoToWrite(currentData);
+                }
+            }
 
-            // ✅ Fix #2 : utiliser allPackMots au lieu de lessonsData
-            const wrongAnswers = shuffleArray(
-                allPackMots.filter((i) => i.id !== data.id),
-            ).slice(0, 3);
-            const options = shuffleArray([...wrongAnswers, data]);
-            const grid = document.createElement("div");
-            grid.className = "grid grid-cols-2 gap-4 w-full";
-            options.forEach((opt) => {
-                const card = document.createElement("div");
-                card.className = "cursor-pointer group";
-                const vid = document.createElement("video");
-                vid.src = opt.videoSrc;
-                vid.className =
-                    "w-full rounded-lg aspect-video bg-black object-cover group-hover:ring-4 ring-indigo-500 transition";
-                vid.muted = true;
-                card.onclick = () => checkAnswer(opt.id === data.id, data.word);
-                card.onmouseenter = () => vid.play();
-                card.onmouseleave = () => {
-                    vid.pause();
-                    vid.currentTime = 0;
+            // TYPE 1 : Vidéo -> Choisir le bon mot
+            function renderVideoToWord(correct, options) {
+                if (!container) return;
+
+                const videoEl = document.createElement("video");
+                videoEl.src = correct.urlVideo || correct.video_url;
+                videoEl.autoplay = true;
+                videoEl.loop = true;
+                videoEl.muted = false;
+                videoEl.playsInline = true;
+                videoEl.className = "mb-6 shadow-xl";
+
+                videoEl.onerror = () => {
+                    videoEl.style.display = "none";
+                    const errorDiv = document.createElement("div");
+                    errorDiv.textContent = "Erreur vidéo";
+                    errorDiv.className = "text-red-500 text-center p-4";
+                    if (container) container.prepend(errorDiv);
                 };
-                card.appendChild(vid);
-                grid.appendChild(card);
-            });
-            container.appendChild(grid);
-        }
 
-        function checkAnswer(isCorrect, correctWord) {
-            const feedback = document.getElementById("feedback-area");
-            const nextBtn = document.getElementById("next-btn");
-            const container = document.getElementById("exercise-container");
-            container
-                .querySelectorAll("button, input")
-                .forEach((el) => (el.disabled = true));
-            feedback.classList.remove("hidden");
-            nextBtn.classList.remove("hidden");
-            if (isCorrect) {
-                feedback.className =
-                    "mt-4 p-4 rounded-xl text-center font-bold text-lg bg-green-100 text-green-700";
-                feedback.innerText = "Bravo ! 🎉";
-            } else {
-                feedback.className =
-                    "mt-4 p-4 rounded-xl text-center font-bold text-lg bg-red-100 text-red-700";
-                feedback.innerText = `Oups ! La réponse était : ${correctWord}`;
+                const grid = document.createElement("div");
+                grid.className = "w-full";
+
+                options.forEach((opt) => {
+                    const btn = document.createElement("button");
+                    btn.textContent = opt.mot || opt.word;
+                    btn.className = "btn-option";
+                    // 4ème argument = null car pas de bouton de validation dédié
+                    btn.onclick = () =>
+                        handleChoice(btn, opt.id === correct.id, null, null);
+                    grid.appendChild(btn);
+                });
+
+                container.appendChild(videoEl);
+                container.appendChild(grid);
             }
-            nextBtn.onclick = () => {
-                currentIndex++;
-                renderExercise();
-            };
-        }
 
-        function finishLesson() {
-            const container = document.getElementById("exercise-container");
-            document.getElementById("progress-bar").style.width = "100%";
-            document.getElementById("progress-text").innerText =
-                `${totalExercises} / ${totalExercises}`;
-            container.innerHTML = `
-                <div class="text-center">
-                    <div class="text-6xl mb-4">🏆</div>
-                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Leçon terminée !</h2>
-                    <p class="text-slate-600 mb-6">Vous avez complété tous les exercices.</p>
-                    <button onclick="location.reload()" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">Rejouer</button>
-                </div>
-            `;
-            document.getElementById("feedback-area").classList.add("hidden");
-            document.getElementById("next-btn").classList.add("hidden");
-        }
-    </script>
-</Layout>
+            // TYPE 2 : Mot -> Choisir la bonne vidéo
+            function renderWordToVideo(correct, options) {
+                if (!container) return;
+
+                const title = document.createElement("h2");
+                title.textContent = correct.mot || correct.word;
+                title.className =
+                    "text-3xl font-bold mb-8 text-center text-slate-800";
+
+                const grid = document.createElement("div");
+                grid.className = "video-grid";
+
+                options.forEach((opt) => {
+                    const btn = document.createElement("button");
+                    btn.className = "video-btn";
+
+                    const vid = document.createElement("video");
+                    vid.src = opt.urlVideo || opt.video_url;
+                    vid.className =
+                        "w-full h-full object-cover pointer-events-none";
+                    vid.muted = true;
+                    vid.loop = true;
+                    vid.playsInline = true;
+                    vid.preload = "metadata";
+
+                    btn.appendChild(vid);
+                    // 4ème argument = null car pas de bouton de validation dédié
+                    btn.onclick = () =>
+                        handleChoice(btn, opt.id === correct.id, true, null);
+                    grid.appendChild(btn);
+                });
+
+                container.appendChild(title);
+                container.appendChild(grid);
+            }
+
+            // TYPE 3 : Vidéo -> Écrire le mot
+            function renderVideoToWrite(correct) {
+                if (!container) return;
+
+                const videoEl = document.createElement("video");
+                videoEl.src = correct.urlVideo || correct.video_url;
+                videoEl.autoplay = true;
+                videoEl.loop = true;
+                videoEl.playsInline = true;
+                videoEl.className = "mb-6 shadow-xl w-3/4";
+
+                const inputWrapper = document.createElement("div");
+                inputWrapper.className = "w-full flex flex-col gap-4";
+
+                const input = document.createElement("input");
+                input.type = "text";
+                input.placeholder = "Écrivez le mot...";
+                input.className =
+                    "w-full p-4 text-xl border-2 border-slate-300 rounded-xl focus:border-blue-500 outline-none text-center uppercase bg-white shadow-sm";
+                input.autocomplete = "off";
+                input.autocapitalize = "none";
+                input.spellcheck = false; // Booléen, pas une chaîne
+
+                const submitBtn = document.createElement("button");
+                submitBtn.textContent = "Valider";
+                submitBtn.className =
+                    "w-full bg-blue-600 text-white font-bold py-4 rounded-xl active:bg-blue-700 shadow-lg active:scale-95 transition-transform";
+
+                const checkAnswer = () => {
+                    if (isAnswering) return;
+                    const val = input.value.trim().toLowerCase();
+                    const correctVal = (
+                        correct.mot ||
+                        correct.word ||
+                        ""
+                    ).toLowerCase();
+                    const isCorrect = val === correctVal && val !== "";
+
+                    // ICI : On passe bien 'submitBtn' (HTMLButtonElement) comme 4ème argument
+                    handleChoice(input, isCorrect, false, submitBtn);
+                };
+
+                submitBtn.onclick = checkAnswer;
+
+                input.addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") checkAnswer();
+                });
+
+                inputWrapper.appendChild(input);
+                inputWrapper.appendChild(submitBtn);
+
+                container.appendChild(videoEl);
+                container.appendChild(inputWrapper);
+
+                // Focus auto et scroll pour le clavier mobile
+                setTimeout(() => {
+                    input.focus();
+                    input.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                }, 300);
+            }
+
+            // ÉCRAN DE FIN
+            function renderEndScreen() {
+                if (!container) return;
+
+                const maxScore = (allMots ? allMots.length : 0) * 10;
+                const packId = window.location.pathname.split("/").pop(); // Récupère l'ID depuis l'URL si Astro.params n'est pas dispo ici
+
+                container.innerHTML = `
+      <div class="text-center w-full animate-in fade-in zoom-in duration-500">
+        <div class="text-6xl mb-4">🎉</div>
+        <h2 class="text-3xl font-bold mb-2 text-slate-800">Leçon Terminée !</h2>
+        <p class="text-slate-500 mb-6">Pack: ${packId}</p>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-8 border border-slate-100">
+          <p class="text-sm text-slate-400 uppercase font-bold tracking-wider">Score Final</p>
+          <p class="text-5xl font-black text-blue-600 mt-2">${score} <span class="text-2xl text-slate-300">/ ${maxScore}</span></p>
+        </div>
+
+        <button onclick="location.reload()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl active:scale-95 transition-transform shadow-xl">
+          Recommencer
+        </button>
+      </div>
+    `;
+
+                if (progressBar) progressBar.style.width = "100%";
+                if (progressText) progressText.textContent = "Terminé";
+            }
+
+            // ============================================================
+            // 4. DÉMARRAGE
+            // ============================================================
+            if (allMots && allMots.length > 0) {
+                renderLesson();
+            } else {
+                if (container) {
+                    container.innerHTML = `
+        <div class="text-center text-slate-500 p-8">
+          <p class="text-xl font-bold mb-2">Aucun mot trouvé</p>
+          <p>Le pack est vide ou introuvable.</p>
+          <button onclick="location.back()" class="mt-6 text-blue-600 font-semibold underline">Retour</button>
+        </div>
+      `;
+                }
+            }
+        </script>
+    </body>
+</html>
