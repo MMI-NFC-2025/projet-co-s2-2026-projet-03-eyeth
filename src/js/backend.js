@@ -19,3 +19,45 @@ export async function onePack(id) {
         console.error(e);
     }
 }
+
+export async function getMotsForPack(packId) {
+    try {
+        const composerEntry = await pb.collection('composer').getFirstListItem(`codePack = "${packId}"`);
+        const motsIds = composerEntry.idMot;
+        if (!motsIds || motsIds.length === 0) return [];
+
+        const filter = motsIds.map(id => `id = "${id}"`).join('||');
+
+        const mots = await pb.collection('mots').getFullList({
+            filter: filter,
+            sort: 'mot',
+        });
+
+        return mots;
+
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}
+
+export async function getMots() {
+    try {
+        const mots = await pb.collection("mots").getFullList({
+            sort: "mot",
+        });
+        return mots;
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}
+
+export async function getOneMot(idMot) {
+    try {
+        const mot = await pb.collection("mots").getOne(idMot);
+        return mot;
+    } catch (e) {
+        console.error(e);
+    }
+}

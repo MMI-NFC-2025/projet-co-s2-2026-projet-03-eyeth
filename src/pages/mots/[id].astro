@@ -1,0 +1,13 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Hero from "../../components/Hero.astro";
+
+import { getOneMot } from "../../js/backend.js";
+
+const motId = Astro.params;
+const mot = await getOneMot(motId);
+---
+
+<Layout title={mot.mot}>
+    <Hero title={mot.mot} retour="/mots/" />
+</Layout>

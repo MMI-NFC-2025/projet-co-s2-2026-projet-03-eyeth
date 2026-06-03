@@ -1,12 +1,9 @@
 ---
 import ImagePb from "../components/ImagePb.astro";
-const { pack } = Astro.props;
+const { pack, classImg } = Astro.props;
 ---
 
-<a
-    href={`/packs/${pack.id}`}
-    class="group relative block w-80 h-80 rounded-lg overflow-hidden shadow-lg my-4 mx-auto"
->
+<a href={`/packs/${pack.id}`} class={classImg}>
     {
         pack.illustration && (
             <ImagePb

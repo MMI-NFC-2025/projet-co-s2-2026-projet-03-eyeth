@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Hero from "../../components/Hero.astro";
+import CardPack from "../../components/CardPack.astro";
 import { getPacks } from "../../js/backend.js";
 
 const packs = await getPacks();
@@ -8,11 +9,17 @@ const packs = await getPacks();
 
 <Layout title="packs">
     <Hero title="Nos packs" />
-    <!--{
-        packs.length > 0 ? (
-            packs.map((pack) => <Card {...pack} />)
-        ) : (
-            <p>Aucun pack disponible</p>
-        )
-}-->
+
+    <div class="grid grid-cols-2 gap-6 max-w-4xl mx-auto p-4">
+        {
+            packs.map((pack) => (
+                <div class="w-full">
+                    <CardPack
+                        pack={pack}
+                        classImg="group relative block w-42 h-52.25 rounded-lg overflow-hidden shadow-lg my-4 mx-auto"
+                    />
+                </div>
+            ))
+        }
+    </div>
 </Layout>

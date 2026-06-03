@@ -28,7 +28,7 @@ const fonctionnalites = [
         titre: "Dictionnaire",
         description: "Des centaines de signes",
         image: placeHolderFonctionnalites,
-        href: "#",
+        href: "/mots/",
     },
 ];
 ---
@@ -82,7 +82,10 @@ const fonctionnalites = [
             {
                 packs.map((pack) => (
                     <div class="snap-center shrink-0 md:w-auto">
-                        <CardPack pack={pack} />
+                        <CardPack
+                            pack={pack}
+                            classImg="group relative block w-80 h-80 rounded-lg overflow-hidden shadow-lg my-4 mx-auto"
+                        />
                     </div>
                 ))
             }
