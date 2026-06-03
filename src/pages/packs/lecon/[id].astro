@@ -323,6 +323,8 @@ const lessonsDataRaw = mots
                 const card = document.createElement("div");
                 card.className =
                     "cursor-pointer group active:scale-95 transition-transform";
+                card.dataset.id = opt.id; // ← Ajout pour identifier la carte
+                card.dataset.correct = opt.id === data.id ? "true" : "false"; // ← Ajout
 
                 const mediaContainer = createMediaElement(opt.videoSrc, true);
                 const mediaEl = mediaContainer.firstElementChild;
@@ -360,6 +362,22 @@ const lessonsDataRaw = mots
             allBtns.forEach((el) => (el.disabled = true));
             const allCards = container.querySelectorAll("div");
             allCards.forEach((el) => (el.style.pointerEvents = "none"));
+
+            container.querySelectorAll("[data-correct]").forEach((card) => {
+                if (card.dataset.correct === "true") {
+                    card.classList.add(
+                        "ring-4",
+                        "ring-green-500",
+                        "ring-offset-2",
+                        "rounded-lg",
+                    );
+                    card.style.backgroundColor = "#dcfce7"; // bg-green-100
+                } else if (card.dataset.correct === "false" && !isCorrect) {
+                    // Optionnel : griser les mauvaises réponses
+                    card.style.opacity = "0.4";
+                }
+            });
+
             feedback.classList.remove("hidden");
             nextBtn.classList.remove("hidden");
             if (isCorrect) {
