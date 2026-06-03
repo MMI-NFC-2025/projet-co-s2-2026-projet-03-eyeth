@@ -7,10 +7,10 @@ import backMenu from "../assets/menu.webp";
 import bonhommeBleu from "../assets/bonhommeBleu.svg";
 
 const navLinks = [
-  { label: "Accueil", href: "/" },
-  { label: "A propos", href: "/info" },
-  { label: "Services", href: "/" },
-  { label: "Portfolio", href: "/" },
+  { label: "Jeux", href: "/jeux" },
+  { label: "Leçons", href: "/" },
+  { label: "À propos", href: "/info" },
+  { label: "Nos packs", href: "/" },
   { label: "Contact", href: "/" },
 ];
 ---
@@ -39,7 +39,11 @@ const navLinks = [
       />
     </a>
     <div class="flex items-center w-15.5 justify-between relative z-50">
-      <a id="bouton-connexion" href="/" class="transition-opacity duration-300">
+      <a
+        id="bouton-connexion"
+        href="/connexion"
+        class="transition-opacity duration-300"
+      >
         <Image src={bonhommeBleu} alt="Bouton de connexion" />
       </a>
       <button
@@ -83,7 +87,7 @@ const navLinks = [
               <a
                 href={link.href}
                 data-index={i}
-                class="mobile-link px-3 py-2 text-xl text-beige hover:text-rouge transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none inline-flex"
+                class="mobile-link px-3 py-2 text-xl text-beige  transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none inline-flex"
                 style={`transition-delay: ${i * 50}ms`}
               >
                 {link.label}
@@ -101,8 +105,8 @@ const navLinks = [
       <ul class="flex flex-col gap-2 w-full max-w-md">
         <li>
           <a
-            href="/"
-            class="mobile-link block px-3 py-3 text-lg text-beige hover:text-rouge transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
+            href="/connexion"
+            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
             style={`transition-delay: ${250}ms`}
           >
             Connexion
@@ -110,8 +114,8 @@ const navLinks = [
         </li>
         <li>
           <a
-            href="/"
-            class="mobile-link block px-3 py-3 text-lg text-beige hover:text-rouge transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
+            href="/inscription"
+            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
             style={`transition-delay: ${300}ms`}
           >
             Inscription

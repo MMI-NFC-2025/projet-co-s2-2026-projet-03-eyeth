@@ -2,32 +2,45 @@
 import "../styles/global.css";
 import { Image } from "astro:assets";
 import backHero from "../assets/hero.webp";
-import fleche from "../assets/arrow_beige.svg";
+import lightArrow from "../assets/arrow_beige.svg";
+import darkArrow from "../assets/arrow_bleue.svg";
 
-const { title } = Astro.props;
+const { title = "", hideImage = false, hideButton = false } = Astro.props;
 ---
 
-<div class="flex items-center">
-    <Image
-        src={backHero}
-        alt="Fond du hero"
-        class="absolute inset-0 w-screen -z-10 max-h-170"
-    />
-    <a href="/">
-        {
-            title !== "La langue des signes" && (
-                <Image
-                    src={fleche}
-                    alt="Fleche de retour à la page précédente"
-                    class=" absolute flexs w-5 scale-x-[-1] top-23 left-5"
-                />
-            )
-        }
-    </a>
+{
+    !hideImage ? (
+        <div class="relative flex items-center h-80 w-full overflow-hidden">
+            <Image
+                src={backHero}
+                alt="Fond du hero"
+                class="absolute inset-0 w-screen -z-10 max-h-130"
+            />
 
-    <h1
-        class="relative flex items-center justify-center mx-auto gap-3 text-6xl text-beige px-12 pt-20 pb-28 text-center"
-    >
-        {title}
-    </h1>
-</div>
+            {!hideButton && (
+                <a href="/" class="absolute top-3 left-5 z-20">
+                    <Image
+                        src={lightArrow}
+                        alt="Retour"
+                        class="w-5 scale-x-[-1]"
+                    />
+                </a>
+            )}
+            <div class="relative flex items-center justify-center text-6xl text-beige   text-center mx-auto">
+                <h1 class="flex">{title}</h1>
+            </div>
+        </div>
+    ) : (
+        <div class="relative flex flex-col items-center w-full py-4">
+            {!hideButton && (
+                <a href="/" class="absolute top-0 left-5 z-20">
+                    <Image
+                        src={darkArrow}
+                        alt="Retour"
+                        class="h-10 w-auto scale-x-[-1]"
+                    />
+                </a>
+            )}
+        </div>
+    )
+}

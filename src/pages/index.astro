@@ -18,15 +18,15 @@ const items = [
 ---
 
 <Layout title="eyeth">
-    <Hero title="La langue des signes" />
+    <Hero title="La langue des signes" hideButton="true"/>
 
-    <div class="m-7">
+    <div class="m-7 mt-0">
         <h3 class="font-semibold text-xl">Qu'est-ce que EYETH ?</h3>
         <p class="mb-4">
             Bienvenue sur EYETH, la plateforme qui rend l'apprentissage de la LSF simple et visuel.
         </p>
         <nav class="flex justify-center m-5">
-            <a href="/" class="p-2 text-lg text-beige bg-bleu hover:bg-rouge transition-colors duration-200 rounded inline-flex">
+            <a href="/info" class="p-2 text-lg text-beige bg-bleu rounded inline-flex">
                 En savoir plus
             </a>
         </nav>
@@ -70,7 +70,6 @@ const items = [
             
             <button 
                 id="btn-prev"
-                class="rounded-full hover:bg-bleu/40 transition-colors duration-200 focus:outline-none"
                 aria-label="Voir les packs précédents"
             >
                 <img src={flechesGauche.src} alt="Précédent" class="w-8 h-8 object-contain drop-shadow-md" />
@@ -78,7 +77,6 @@ const items = [
 
             <button 
                 id="btn-next"
-                class="rounded-full hover:bg-bleu/40 transition-colors duration-200 focus:outline-none"
                 aria-label="Voir les packs suivants"
             >
                 <img src={flechesDroite.src} alt="Suivant" class="w-8 h-8 object-contain " />
