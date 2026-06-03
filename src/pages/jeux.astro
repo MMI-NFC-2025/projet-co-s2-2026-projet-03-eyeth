@@ -40,25 +40,28 @@ const elements = [
             >
                 {
                     elements.map((item) => (
-                        <a
-                            href="#"
-                            class="w-full shrink-0 my-5 snap-center mx-3 flex flex-col justify-center"
-                        >
+                        <div class="w-full shrink-0 snap-center mx-3 flex flex-col justify-center gap-4">
                             <div class="font-semibold text-xl">{item.nom}</div>
-                            <p class="my-3">{item.description}</p>
+                            <p>{item.description}</p>
+                            <a
+                                href="#"
+                                class=" flex justify-center items-center bg-bleu text-beige rounded-lg w-47.25 h-10 "
+                            >
+                                Jouer dès maintenant
+                            </a>
                             <Image
                                 src={item.image}
                                 alt="Image d'illustration"
                                 class="w-auto mx-auto h-55 object-cover"
                             />
-                        </a>
+                        </div>
                     ))
                 }
             </div>
         </div>
     </div>
     <div
-        class="absolute bottom-10 left-0 right-0 flex justify-center gap-8 z-10"
+        class="absolute bottom-5 left-0 right-0 flex justify-center gap-8 z-10"
     >
         <button
             id="btn-prev"
