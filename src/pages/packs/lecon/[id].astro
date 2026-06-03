@@ -1,0 +1,337 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+
+import { getMotsForPack } from "../../../js/backend";
+
+const id = Astro.params;
+const exerciseTypes = ["video-to-choice", "video-to-text", "word-to-video"];
+const mots = getMotsForPack(id);
+---
+
+<Layout title="Nouvelle Leçon">
+    <div
+        class="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4"
+    >
+        <div
+            id="setup-screen"
+            class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full"
+        >
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">
+                Objectif du jour
+            </h1>
+            <p class="text-slate-500 mb-8">
+                Combien d'exercices voulez-vous faire ?
+            </p>
+
+            <div class="space-y-4">
+                <button
+                    onclick="startLesson(10)"
+                    class="w-full py-4 px-6 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold rounded-xl transition transform hover:scale-105"
+                >
+                    10 exercices (Rapide)
+                </button>
+                <button
+                    onclick="startLesson(15)"
+                    class="w-full py-4 px-6 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold rounded-xl transition transform hover:scale-105"
+                >
+                    15 exercices (Standard)
+                </button>
+                <button
+                    onclick="startLesson(20)"
+                    class="w-full py-4 px-6 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold rounded-xl transition transform hover:scale-105"
+                >
+                    20 exercices (Expert)
+                </button>
+            </div>
+        </div>
+
+        <!-- Écran du Jeu (Caché au début) -->
+        <div id="game-screen" class="hidden w-full max-w-2xl">
+            <!-- Barre de progression -->
+            <div class="mb-6">
+                <div
+                    class="flex justify-between text-sm font-semibold text-slate-600 mb-2"
+                >
+                    <span>Progression</span>
+                    <span id="progress-text">0 / 10</span>
+                </div>
+                <div
+                    class="w-full bg-slate-200 rounded-full h-4 overflow-hidden"
+                >
+                    <div
+                        id="progress-bar"
+                        class="bg-green-500 h-4 rounded-full transition-all duration-500 ease-out"
+                        style="width: 0%"
+                    >
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone d'exercice dynamique -->
+            <div
+                id="exercise-container"
+                class="bg-white p-6 rounded-2xl shadow-lg min-h-100 flex flex-col items-center justify-center"
+            >
+                <!-- Le contenu sera injecté par JS ici -->
+            </div>
+
+            <!-- Feedback / Bouton suivant -->
+            <div
+                id="feedback-area"
+                class="hidden mt-4 p-4 rounded-xl text-center font-bold text-lg"
+            >
+                <!-- Succès ou Erreur -->
+            </div>
+            <button
+                id="next-btn"
+                class="hidden w-full mt-4 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition"
+            >
+                Continuer
+            </button>
+        </div>
+    </div>
+
+    <script is:inline>
+        let currentmots = [];
+        let currentIndex = 0;
+        let totalExercises = 0;
+
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        window.startLesson = (count) => {
+            totalExercises = count;
+            // 1. Prendre assez d'items de la base de données
+            const selectedItems = shuffleArray(lessonsData).slice(0, count);
+
+            // 2. Assigner un type d'exercice aléatoire à chaque item
+            currentLessonQueue = selectedItems.map((item) => {
+                const randomType =
+                    exerciseTypes[
+                        Math.floor(Math.random() * exerciseTypes.length)
+                    ];
+                return { ...item, type: randomType };
+            });
+
+            currentIndex = 0;
+
+            // UI Switch
+            document.getElementById("setup-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+
+            renderExercise();
+        };
+
+        function updateProgress() {
+            const percent = (currentIndex / totalExercises) * 100;
+            document.getElementById("progress-bar").style.width = `${percent}%`;
+            document.getElementById("progress-text").innerText =
+                `${currentIndex} / ${totalExercises}`;
+        }
+
+        function renderExercise() {
+            if (currentIndex >= totalExercises) {
+                finishLesson();
+                return;
+            }
+
+            const currentData = currentLessonQueue[currentIndex];
+            const container = document.getElementById("exercise-container");
+            const feedback = document.getElementById("feedback-area");
+            const nextBtn = document.getElementById("next-btn");
+
+            // Reset UI
+            feedback.classList.add("hidden");
+            nextBtn.classList.add("hidden");
+            container.innerHTML = "";
+            updateProgress();
+
+            // Rendu selon le type
+            if (currentData.type === "video-to-choice") {
+                renderVideoToChoice(currentData, container);
+            } else if (currentData.type === "video-to-text") {
+                renderVideoToText(currentData, container);
+            } else if (currentData.type === "word-to-video") {
+                renderWordToVideo(currentData, container);
+            }
+        }
+
+        // --- Type 1: Vidéo -> Choisir le mot (4 choix) ---
+        function renderVideoToChoice(data, container) {
+            const title = document.createElement("h2");
+            title.className = "text-xl font-bold mb-4 text-slate-700";
+            title.innerText = "Quel est ce mot ?";
+            container.appendChild(title);
+
+            const video = document.createElement("video");
+            video.src = data.videoSrc;
+            video.controls = true;
+            video.className =
+                "w-full max-w-md rounded-lg mb-6 aspect-video bg-black";
+            video.autoplay = true;
+            container.appendChild(video);
+
+            // Générer 3 mauvaises réponses + la bonne
+            const wrongAnswers = shuffleArray(
+                lessonsData.filter((i) => i.id !== data.id),
+            ).slice(0, 3);
+            const options = shuffleArray([...wrongAnswers, data]);
+
+            const grid = document.createElement("div");
+            grid.className = "grid grid-cols-2 gap-4 w-full";
+
+            options.forEach((opt) => {
+                const btn = document.createElement("button");
+                btn.className =
+                    "p-4 bg-slate-100 hover:bg-indigo-100 border-2 border-transparent hover:border-indigo-500 rounded-xl font-bold text-lg transition";
+                btn.innerText = opt.word;
+                btn.onclick = () => checkAnswer(opt.id === data.id, data.word);
+                grid.appendChild(btn);
+            });
+            container.appendChild(grid);
+        }
+
+        // --- Type 2: Vidéo -> Écrire le mot ---
+        function renderVideoToText(data, container) {
+            const title = document.createElement("h2");
+            title.className = "text-xl font-bold mb-4 text-slate-700";
+            title.innerText = "Écrivez ce que vous voyez";
+            container.appendChild(title);
+
+            const video = document.createElement("video");
+            video.src = data.videoSrc;
+            video.controls = true;
+            video.className =
+                "w-full max-w-md rounded-lg mb-6 aspect-video bg-black";
+            video.autoplay = true;
+            container.appendChild(video);
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.placeholder = "Tapez le mot ici...";
+            input.className =
+                "w-full p-4 border-2 border-slate-300 rounded-xl text-lg mb-4 focus:border-indigo-500 focus:outline-none";
+
+            const submitBtn = document.createElement("button");
+            submitBtn.className =
+                "w-full py-3 bg-indigo-600 text-white font-bold rounded-xl";
+            submitBtn.innerText = "Valider";
+            submitBtn.onclick = () => {
+                const isCorrect =
+                    input.value.trim().toLowerCase() ===
+                    data.word.toLowerCase();
+                checkAnswer(isCorrect, data.word);
+            };
+
+            container.appendChild(input);
+            container.appendChild(submitBtn);
+
+            // Allow "Enter" key
+            input.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") submitBtn.click();
+            });
+        }
+
+        // --- Type 3: Mot -> Choisir la vidéo (4 choix) ---
+        function renderWordToVideo(data, container) {
+            const title = document.createElement("h2");
+            title.className =
+                "text-xl font-bold mb-6 text-slate-700 text-center";
+            title.innerText = `Trouvez la vidéo pour : "${data.word}"`;
+            container.appendChild(title);
+
+            // Générer 3 mauvaises réponses + la bonne
+            const wrongAnswers = shuffleArray(
+                lessonsData.filter((i) => i.id !== data.id),
+            ).slice(0, 3);
+            const options = shuffleArray([...wrongAnswers, data]);
+
+            const grid = document.createElement("div");
+            grid.className = "grid grid-cols-2 gap-4 w-full";
+
+            options.forEach((opt) => {
+                const card = document.createElement("div");
+                card.className = "cursor-pointer group";
+
+                const vid = document.createElement("video");
+                vid.src = opt.videoSrc;
+                vid.className =
+                    "w-full rounded-lg aspect-video bg-black object-cover group-hover:ring-4 ring-indigo-500 transition";
+                vid.muted = true; // Important pour l'autoplay au survol si on veut
+
+                // Interaction : Click pour sélectionner
+                card.onclick = () => checkAnswer(opt.id === data.id, data.word);
+
+                // Optionnel : Play au survol
+                card.onmouseenter = () => vid.play();
+                card.onmouseleave = () => {
+                    vid.pause();
+                    vid.currentTime = 0;
+                };
+
+                card.appendChild(vid);
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+
+        function checkAnswer(isCorrect, correctWord) {
+            const feedback = document.getElementById("feedback-area");
+            const nextBtn = document.getElementById("next-btn");
+            const container = document.getElementById("exercise-container");
+
+            // Désactiver les interactions pour éviter double clic
+            const allBtns = container.querySelectorAll("button, input");
+            allBtns.forEach((el) => (el.disabled = true));
+
+            feedback.classList.remove("hidden");
+            nextBtn.classList.remove("hidden");
+
+            if (isCorrect) {
+                feedback.className =
+                    "mt-4 p-4 rounded-xl text-center font-bold text-lg bg-green-100 text-green-700";
+                feedback.innerText = "Bravo ! 🎉";
+                // Son de succès optionnel ici
+            } else {
+                feedback.className =
+                    "mt-4 p-4 rounded-xl text-center font-bold text-lg bg-red-100 text-red-700";
+                feedback.innerText = `Oups ! La réponse était : ${correctWord}`;
+            }
+
+            nextBtn.onclick = () => {
+                currentIndex++;
+                renderExercise();
+            };
+        }
+
+        function finishLesson() {
+            const container = document.getElementById("exercise-container");
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+
+            progressBar.style.width = "100%";
+            progressText.innerText = `${totalExercises} / ${totalExercises}`;
+
+            container.innerHTML = `
+        <div class="text-center">
+          <div class="text-6xl mb-4">🏆</div>
+          <h2 class="text-3xl font-bold text-slate-800 mb-2">Leçon terminée !</h2>
+          <p class="text-slate-600 mb-6">Vous avez complété tous les exercices.</p>
+          <button onclick="location.reload()" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">
+            Rejouer
+          </button>
+        </div>
+      `;
+            document.getElementById("feedback-area").classList.add("hidden");
+            document.getElementById("next-btn").classList.add("hidden");
+        }
+
+        window.startLesson = startLesson;
+    </script>
+</Layout>

@@ -3,7 +3,7 @@ import ImagePb from "../components/ImagePb.astro";
 const { pack, classImg } = Astro.props;
 ---
 
-<a href={`/packs/${pack.id}`} class={classImg}>
+<a href={`/packs/mots/${pack.id}`} class={classImg}>
     {
         pack.illustration && (
             <ImagePb
