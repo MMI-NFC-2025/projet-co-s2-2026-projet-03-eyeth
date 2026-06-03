@@ -1,0 +1,26 @@
+---
+import { onePack } from "../../js/backend.js";
+import ImagePb from "../../components/ImagePb.astro";
+import Layout from "../../layouts/Layout.astro";
+
+const { id } = Astro.params;
+const pack = await onePack(id);
+
+if (!pack) {
+    return Astro.redirect("/packs");
+}
+---
+
+<Layout titre={pack.nomPack}>
+    <div
+        class="grille relative grid h-screen items-end py-40 text-white before:absolute before:inset-0 before:-z-5 before:from-black/60"
+    >
+        <h1 class="lg:col-span-9 lg:col-start-4">{pack.nomPack}</h1>
+    </div>
+    <ImagePb
+        classImg="absolute inset-0 -z-10 size-full object-cover"
+        record={pack}
+        alt={pack.nomPack}
+        field="illustration"
+    />
+</Layout>
