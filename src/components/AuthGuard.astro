@@ -1,0 +1,19 @@
+---
+// src/components/AuthGuard.astro
+// Protège une page côté client.
+// Usage : <AuthGuard redirectTo="/login" />
+// Place ce composant en haut de toute page qui requiert une connexion.
+
+export interface Props {
+    redirectTo?: string;
+}
+const { redirectTo = "/login" } = Astro.props;
+---
+
+<script define:vars={{ redirectTo }}>
+    import("/src/js/auth.js").then(({ isLoggedIn }) => {
+        if (!isLoggedIn()) {
+            window.location.href = redirectTo;
+        }
+    });
+</script>

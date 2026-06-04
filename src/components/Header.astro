@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import UserMenu from "../components/UserMenu.astro";
 import { Image } from "astro:assets";
 import logoBleu from "../assets/eyethBleu.svg";
 import logoBeige from "../assets/eyethBeige.svg";
@@ -103,6 +104,7 @@ const navLinks = [
       ></span>
 
       <ul class="flex flex-col gap-2 w-full max-w-md">
+        <UserMenu />
         <li>
           <a
             href="/connexion"
