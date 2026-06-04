@@ -7,7 +7,6 @@ import AuthGuard from "../components/AuthGuard.astro";
 const { title, hideFooter = false, noAuth = false } = Astro.props;
 ---
 
-{!noAuth && <AuthGuard />}
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8" />
