@@ -1,35 +1,61 @@
 ---
-// src/components/UserMenu.astro
-// Affiche le nom de l'utilisateur connecté et un bouton de déconnexion.
-// Usage : <UserMenu /> dans ton header/layout.
+
 ---
 
-<div id="user-menu" class="hidden items-center gap-3">
-    <span id="user-label" class="text-sm text-[#9e9585]"></span>
+<div id="user-menu" class="items-center gap-3">
+    <div id="user-label" class="text-lg hidden text-beige p-3"></div>
     <button
         id="logout-btn"
-        class="text-xs px-3 py-1.5 rounded-full border border-[#2a2820] text-[#9e9585] hover:text-[#f5f0e8] hover:border-[#c8a96e] transition-all"
+        class="p-3 text-lg text-beige transition-all duration-300 ease-out translate-y-4 pointer-events-none hidden"
     >
         Déconnexion
     </button>
+    <a
+        href="/login"
+        id="login"
+        class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
+        style={`transition-delay: ${250}ms`}
+    >
+        Connexion
+    </a>
 </div>
+
+<a
+    href="/signin"
+    id="signin"
+    class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
+    style={`transition-delay: ${300}ms`}
+>
+    Inscription</a
+>
 
 <script type="module">
     import { getCurrentUser, logout, isLoggedIn } from "/src/js/auth.js";
 
-    const menu = document.getElementById("user-menu");
     const label = document.getElementById("user-label");
     const logoutBtn = document.getElementById("logout-btn");
+    const login = document.getElementById("login");
+    const signin = document.getElementById("signin");
 
     if (isLoggedIn()) {
+        // Connecté : afficher email + bouton déconnexion
         const user = getCurrentUser();
         label.textContent = user?.username || user?.email || "Compte";
-        menu.classList.remove("hidden");
-        menu.classList.add("flex");
+        label.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+        logoutBtn.classList.remove("pointer-events-none");
+        login.classList.add("hidden");
+        signin.classList.add("hidden");
+    } else {
+        // Déconnecté : afficher connexion + inscription
+        label.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+        login.classList.remove("hidden");
+        signin.classList.remove("hidden");
     }
 
     logoutBtn.addEventListener("click", () => {
         logout();
-        window.location.href = "/login";
+        window.location.href = "/connexion";
     });
 </script>

@@ -18,16 +18,14 @@ const imageUrl = record?.[field]
     imageUrl ? (
         <img
             src={imageUrl}
-            alt={alt || "Image du pack"}
+            alt={alt || field.mot}
             class={classImg}
             loading="lazy"
             width="400"
             height="400"
         />
     ) : (
-        <div
-            class={`${classImg} bg-gray-500 flex items-center justify-center text-white`}
-        >
+        <div class={`${classImg}items-center justify-center text-white`}>
             Pas d'image
         </div>
     )

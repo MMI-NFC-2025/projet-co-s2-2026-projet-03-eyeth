@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Memory from "../components/Memory.astro";
+import { getMots } from "../js/backend.js";
+
+const mots = await getMots();
+---
+
+<Layout title="Memory" hideFooter="true">
+    <Hero hideImage="true" retour="jeux.astro" />
+    <Memory />
+</Layout>

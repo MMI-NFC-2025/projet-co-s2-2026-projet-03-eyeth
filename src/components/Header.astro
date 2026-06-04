@@ -1,5 +1,4 @@
 ---
-import "../styles/global.css";
 import UserMenu from "../components/UserMenu.astro";
 import { Image } from "astro:assets";
 import logoBleu from "../assets/eyethBleu.svg";
@@ -12,7 +11,6 @@ const navLinks = [
   { label: "Nos Packs", href: "/packs/" },
   { label: "Dictionnaire", href: "/mots/" },
   { label: "À propos", href: "/info" },
-  { label: "Contact", href: "/" },
 ];
 ---
 
@@ -42,10 +40,10 @@ const navLinks = [
     <div class="flex items-center w-15.5 justify-between relative z-50">
       <a
         id="bouton-connexion"
-        href="/connexion"
+        href="/login"
         class="transition-opacity duration-300"
       >
-        <Image src={bonhommeBleu} alt="Bouton de connexion" />
+        <Image src={bonhommeBleu} alt="Bouton de connexion" class="-z-20" />
       </a>
       <button
         id="hamburger-btn"
@@ -105,24 +103,6 @@ const navLinks = [
 
       <ul class="flex flex-col gap-2 w-full max-w-md">
         <UserMenu />
-        <li>
-          <a
-            href="/connexion"
-            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
-            style={`transition-delay: ${250}ms`}
-          >
-            Connexion
-          </a>
-        </li>
-        <li>
-          <a
-            href="/inscription"
-            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
-            style={`transition-delay: ${300}ms`}
-          >
-            Inscription
-          </a>
-        </li>
       </ul>
     </div>
   </nav>
@@ -142,9 +122,9 @@ const navLinks = [
   const LOGO_MENU = logo.dataset.logoMenu!;
   const header = document.getElementById("header")!;
   const menuBg = document.getElementById("menu-bg")!;
-  const boutonConnexion = document.getElementById("bouton-connexion")!;
   const line1 = document.getElementById("line1")!;
   const line2 = document.getElementById("line2")!;
+  const boutonConnexion = document.getElementById("bouton-connexion")!;
 
   let isOpen = false;
 
@@ -157,6 +137,8 @@ const navLinks = [
 
       menu.classList.remove("h-0");
       menu.classList.add("h-screen");
+
+      boutonConnexion.classList.add("opacity-0");
 
       menuBg.classList.remove("h-0", "opacity-0");
       menuBg.classList.add("h-screen", "opacity-100");
@@ -179,8 +161,6 @@ const navLinks = [
       line1.classList.add("opacity-10");
       line2.classList.remove("opacity-0");
       line2.classList.add("opacity-100");
-
-      boutonConnexion.classList.add("opacity-0", "pointer-events-none");
 
       requestAnimationFrame(() => {
         links.forEach((link) => {
@@ -209,6 +189,8 @@ const navLinks = [
       menuBg.classList.remove("h-screen", "opacity-100");
       menuBg.classList.add("h-0", "opacity-0");
 
+      boutonConnexion.classList.remove("opacity-0");
+
       setTimeout(() => {
         menu.classList.remove("h-screen");
         menu.classList.add("h-0");
@@ -232,8 +214,6 @@ const navLinks = [
       line1.classList.add("opacity-0");
       line2.classList.remove("opacity-100");
       line2.classList.add("opacity-0");
-
-      boutonConnexion.classList.remove("opacity-0", "pointer-events-none");
 
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";

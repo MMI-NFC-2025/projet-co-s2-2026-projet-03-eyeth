@@ -53,61 +53,64 @@ export async function getMots() {
     }
 }
 
-export async function getOneMot(idMot) {
+export async function getMotsIllustres() {
     try {
-        const mot = await pb.collection("mots").getOne(idMot);
-        return mot;
+        const mots = await pb.collection("mots").getFullList({
+            filter: 'illu != ""',
+        })
+        return mots;
     } catch (e) {
         console.error(e);
+        return [];
     }
 }
 
-/**
- * ─────────────────────────────────────────────────────────────
- *  AJOUTS à intégrer dans ton fichier /src/js/backend.js
- *  Colle ce bloc dans ton backend.js existant.
- * ─────────────────────────────────────────────────────────────
- *
- * Prérequis : ton backend.js doit exporter une instance PocketBase, ex :
- *   import PocketBase from 'pocketbase';
- *   export const pb = new PocketBase('https://ton-pocketbase.com');
- *
- * Si tu n'as pas encore l'import PocketBase, ajoute-le en haut du fichier.
- */
 
-// ── Connexion ────────────────────────────────────────────────
-/**
- * Connecte un utilisateur via email + mot de passe.
- * @param {string} email
- * @param {string} password
- * @returns {Promise<{ token: string, record: object }>}
- */
-export async function loginUser(email, password) {
-    // pb = ton instance PocketBase déjà déclarée dans backend.js
-    const authData = await pb
-        .collection("users")
-        .authWithPassword(email, password);
-    return authData;
-}
 
-// ── Inscription ──────────────────────────────────────────────
+
+
 /**
- * Crée un compte puis connecte automatiquement l'utilisateur.
- * @param {string} email
- * @param {string} password
- * @param {string} [username] — optionnel
- * @returns {Promise<{ token: string, record: object }>}
+ * Tire `count` mots via l'API APIVerve Random Word,
+ * puis retourne ceux qui existent dans getMotsIllustres().
+ * Complète avec un fallback aléatoire si pas assez de correspondances.
  */
-export async function registerUser(email, password, username = "") {
-    await pb.collection("users").create({
-        email,
-        password,
-        passwordConfirm: password,
-        prenom: (username ? { username } : {}),
-    });
-    // Connexion immédiate après inscription
-    const authData = await pb
-        .collection("users")
-        .authWithPassword(email, password);
-    return authData;
+export async function getMotsAleatoires(count = 3, maxTentatives = 20) {
+    const catalogue = await getMotsIllustres();
+    const index = new Map(catalogue.map((m) => [m.mot.toLowerCase(), m]));
+
+    const selection = [];
+    const dejaPris = new Set();
+    let tentatives = 0;
+
+    while (selection.length < count && tentatives < maxTentatives) {
+        tentatives++;
+        try {
+            const res = await fetch('https://api.apiverve.com/v1/randomwords', {
+                headers: {
+                    'X-API-Key': import.meta.env.APIVERVE_KEY,
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!res.ok) continue;
+            const json = await res.json();
+            const mot = json?.data?.word?.toLowerCase();
+            if (!mot || dejaPris.has(mot)) continue;
+            const found = index.get(mot);
+            if (found) {
+                dejaPris.add(mot);
+                selection.push(found);
+            }
+        } catch {
+            // Continue silencieusement sur erreur réseau
+        }
+    }
+
+    // Fallback : compléter avec des mots aléatoires du catalogue
+    if (selection.length < count) {
+        const restants = catalogue.filter((m) => !dejaPris.has(m.mot.toLowerCase()));
+        const fallback = restants.sort(() => Math.random() - 0.5).slice(0, count - selection.length);
+        selection.push(...fallback);
+    }
+
+    return selection;
 }

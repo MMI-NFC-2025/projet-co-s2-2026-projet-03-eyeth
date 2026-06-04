@@ -1,0 +1,342 @@
+---
+import { getMotsAleatoires, pb } from "../js/backend.js";
+import { Image } from "astro:assets";
+import logo from "../assets/eyethRouge.svg";
+
+const selection = await getMotsAleatoires(3);
+
+const motsSerialized = JSON.stringify(
+    selection.map((m) => {
+        const mainUrl = m.illustration
+            ? pb.files.getURL(m, m.illustration, { thumb: "400x400" })
+            : null;
+        const fallbackUrl = m.illu
+            ? pb.files.getURL(m, m.illu, { thumb: "400x400" })
+            : null;
+
+        return {
+            ...m,
+            mainUrl,
+            fallbackUrl,
+        };
+    }),
+);
+
+const logoUrl = logo.src;
+---
+
+<div
+    id="memory-root"
+    class="w-full px-4 py-6"
+    data-mots={motsSerialized}
+    data-logo={logoUrl}
+>
+    <div class="flex items-center justify-between mb-4">
+        <p class="text-xs text-bleu">
+            Paires trouvées :
+            <span id="score" class="font-semibold text-bleu">0</span>
+            /
+            <span id="total" class="font-semibold text-bleu">3</span>
+        </p>
+        <button
+            id="btn-restart"
+            class="text-[10px] px-2 py-1 rounded-lg border border-rouge
+             text-beige bg-bleu"
+        >
+            ↻ Recommencer
+        </button>
+    </div>
+
+    <div
+        id="error-msg"
+        class="hidden p-2 text-xs text-red-700 bg-red-50 rounded-xl border border-red-200 mb-3"
+    >
+    </div>
+
+    <div id="grid" class="grid grid-cols-2 gap-3"></div>
+
+    <div
+        id="win-banner"
+        class="hidden mt-4 text-center py-4 px-3 rounded-2xl bg-emerald-50 border border-emerald-200"
+    >
+        <p class="text-lg font-medium text-emerald-800">Bravo ! 🎉</p>
+        <p id="win-msg" class="text-xs text-emerald-600"></p>
+    </div>
+</div>
+
+<script>
+    const CARD_BG = "bg-bleu ";
+    const DOT_BG = "bg-white/20";
+
+    interface MotData {
+        mot: string;
+        mainUrl: string | null;
+        fallbackUrl: string | null;
+    }
+
+    interface Card {
+        id: string;
+        pairId: number;
+        type: "word" | "illus";
+        content: string;
+        fallbackUrl: string | null;
+        logoUrl: string;
+    }
+
+    let flipped: { el: HTMLElement; card: Card }[] = [];
+    let matched = 0;
+    let locked = false;
+    let moves = 0;
+    let allCards: Card[] = [];
+
+    function shuffle<T>(arr: T[]): T[] {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function buildCards(paires: MotData[], logoUrl: string): Card[] {
+        const cards: Card[] = [];
+        paires.forEach((p, i) => {
+            cards.push({
+                id: `w${i}`,
+                pairId: i,
+                type: "word",
+                content: p.mot,
+                fallbackUrl: null,
+                logoUrl,
+            });
+            cards.push({
+                id: `i${i}`,
+                pairId: i,
+                type: "illus",
+                content: p.mainUrl || "",
+                fallbackUrl: p.fallbackUrl,
+                logoUrl,
+            });
+        });
+        return shuffle(cards);
+    }
+
+    function renderGrid(cards: Card[]) {
+        const grid = document.getElementById("grid")!;
+        grid.innerHTML = "";
+        allCards = cards;
+
+        cards.forEach((c) => {
+            const el = document.createElement("div");
+            el.className = "card aspect-square cursor-pointer";
+            el.style.perspective = "1000px";
+            el.dataset.id = c.id;
+            el.dataset.pair = String(c.pairId);
+
+            const inner = document.createElement("div");
+            inner.className = "card-inner";
+            inner.style.transformStyle = "preserve-3d";
+            inner.style.transition =
+                "transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)";
+            inner.style.position = "relative";
+            inner.style.width = "100%";
+            inner.style.height = "100%";
+            inner.style.transform = "rotateY(0deg)";
+
+            const front = document.createElement("div");
+            front.className =
+                "card-face rounded-xl  bg-bleu flex items-center justify-center overflow-hidden";
+            front.style.backfaceVisibility = "hidden";
+            front.style.transform = "rotateY(180deg)";
+            front.style.position = "absolute";
+            front.style.width = "100%";
+            front.style.height = "100%";
+            front.style.borderRadius = "0.75rem";
+            front.style.display = "flex";
+            front.style.alignItems = "center";
+            front.style.justifyContent = "center";
+            front.style.zIndex = "1";
+
+            if (c.type === "word") {
+                const span = document.createElement("span");
+                span.className = `text-center font-bold px-1 leading-tight text-beige ${c.content.length > 10 ? "text-xl" : "text-base"}`;
+                span.textContent = c.content;
+                front.appendChild(span);
+            } else {
+                const img = document.createElement("img");
+                img.src = c.content;
+                img.alt = "illustration";
+                img.className = "w-full h-full object-cover";
+                img.loading = "lazy";
+
+                img.onerror = () => {
+                    front.innerHTML = "";
+                    if (c.fallbackUrl) {
+                        const fallbackImg = document.createElement("img");
+                        fallbackImg.src = c.fallbackUrl;
+                        fallbackImg.alt = "illustration de secours";
+                        fallbackImg.className = "w-full h-full object-cover";
+                        fallbackImg.loading = "lazy";
+                        fallbackImg.onerror = () => {
+                            front.innerHTML = "";
+                            const span = document.createElement("span");
+                            span.className =
+                                "text-[10px] text-beige text-center px-1";
+                            span.textContent = "Image indisponible";
+                            front.appendChild(span);
+                        };
+                        front.appendChild(fallbackImg);
+                    } else {
+                        const span = document.createElement("span");
+                        span.className =
+                            "text-[10px] text-beige text-center px-1";
+                        span.textContent = "Pas d'image";
+                        front.appendChild(span);
+                    }
+                };
+                front.appendChild(img);
+            }
+
+            const back = document.createElement("div");
+            back.className = `card-face rounded-xl  flex flex-col items-center justify-center gap-1 ${CARD_BG}`;
+            back.style.backfaceVisibility = "hidden";
+            back.style.transform = "rotateY(0deg)";
+            back.style.position = "absolute";
+            back.style.width = "100%";
+            back.style.height = "100%";
+            back.style.borderRadius = "0.75rem";
+            back.style.display = "flex";
+            back.style.alignItems = "center";
+            back.style.justifyContent = "center";
+            back.style.zIndex = "2";
+
+            const imgContainer = document.createElement("div");
+
+            imgContainer.className = `w-1/2 h-1/2 flex items-center justify-center ${DOT_BG} rounded-full p-2`;
+
+            const logoImg = document.createElement("img");
+            logoImg.src = c.logoUrl;
+            logoImg.alt = "Logo";
+            logoImg.className = "w-full h-full object-contain";
+
+            imgContainer.appendChild(logoImg);
+            back.appendChild(imgContainer);
+
+            inner.appendChild(front);
+            inner.appendChild(back);
+            el.appendChild(inner);
+
+            el.addEventListener("click", () => onCardClick(el, c));
+            grid.appendChild(el);
+        });
+    }
+
+    function onCardClick(el: HTMLElement, card: Card) {
+        if (locked) return;
+        if (
+            el.classList.contains("flipped") ||
+            el.classList.contains("matched")
+        )
+            return;
+
+        el.classList.add("flipped");
+        const inner = el.querySelector(".card-inner") as HTMLElement;
+        if (inner) inner.style.transform = "rotateY(180deg)";
+
+        flipped.push({ el, card });
+
+        if (flipped.length === 2) {
+            locked = true;
+            moves++;
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const [a, b] = flipped;
+        const isMatch =
+            a.card.pairId === b.card.pairId && a.card.type !== b.card.type;
+
+        if (isMatch) {
+            a.el.classList.add("matched");
+            b.el.classList.add("matched");
+            matched++;
+            document.getElementById("score")!.textContent = String(matched);
+            flipped = [];
+            locked = false;
+            if (matched === allCards.length / 2) showWin();
+        } else {
+            setTimeout(() => {
+                const innerA = a.el.querySelector(".card-inner") as HTMLElement;
+                const innerB = b.el.querySelector(".card-inner") as HTMLElement;
+                if (innerA) innerA.style.transform = "rotateY(0deg)";
+                if (innerB) innerB.style.transform = "rotateY(0deg)";
+
+                a.el.classList.remove("flipped");
+                b.el.classList.remove("flipped");
+                flipped = [];
+                locked = false;
+            }, 1000);
+        }
+    }
+
+    function showWin() {
+        const banner = document.getElementById("win-banner")!;
+        banner.classList.remove("hidden");
+        document.getElementById("win-msg")!.textContent =
+            `Toutes les paires trouvées en ${moves} tentative${moves > 1 ? "s" : ""} !`;
+    }
+
+    function showError(msg: string) {
+        const el = document.getElementById("error-msg")!;
+        el.textContent = msg;
+        el.classList.remove("hidden");
+    }
+
+    function init() {
+        const root = document.getElementById("memory-root")!;
+        const raw = root.dataset.mots ?? "[]";
+        const logoUrl = root.dataset.logo ?? "";
+
+        let mots: MotData[] = [];
+        try {
+            mots = JSON.parse(raw);
+        } catch {
+            showError("Impossible de lire les données des mots.");
+            return;
+        }
+
+        if (mots.length < 3) {
+            showError(
+                "Pas assez de mots avec illustration (minimum 3 requis).",
+            );
+            return;
+        }
+
+        flipped = [];
+        matched = 0;
+        locked = false;
+        moves = 0;
+        document.getElementById("score")!.textContent = "0";
+        document.getElementById("total")!.textContent = String(mots.length);
+        document.getElementById("win-banner")!.classList.add("hidden");
+        document.getElementById("error-msg")!.classList.add("hidden");
+
+        renderGrid(buildCards(mots, logoUrl));
+    }
+
+    document
+        .getElementById("btn-restart")
+        ?.addEventListener("click", () => window.location.reload());
+
+    init();
+</script>
+
+<style>
+    .card {
+        cursor: pointer;
+    }
+    .card-inner {
+        transform-style: preserve-3d;
+    }
+</style>

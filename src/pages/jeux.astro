@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { Image } from "astro:assets";
-import placeHolder from "../assets/placeHolderJeuxCarrousel.svg";
+import memoire from "../assets/memoire.webp";
 import flechesGauche from "../assets/button_lightLeft.svg";
 import flechesDroite from "../assets/button_lightRight.svg";
 import Hero from "../components/Hero.astro";
@@ -11,19 +11,22 @@ const elements = [
         nom: "Jeux du Mémory",
         description:
             "Découvrez notre jeu du Memory dédié à l'apprentissage de la LSF conçu pour apprendre en s'amusant. Associez les cartes pour relier un signe au mot correspondant. Renforcez votre mémoire visuelle et enrichissez progressivement votre vocabulaire en LSF",
-        image: placeHolder,
+        image: memoire,
+        href: "/jeuxMemory",
     },
     {
         nom: "Undercover",
         description:
             "Découvrez notre jeu du Memory dédié à l'apprentissage de la LSF conçu pour apprendre en s'amusant. Associez les cartes pour relier un signe au mot correspondant. Renforcez votre mémoire visuelle et enrichissez progressivement votre vocabulaire en LSF",
-        image: placeHolder,
+        image: memoire,
+        href: "#",
     },
     {
         nom: "Mots-mêlés",
         description:
             "Découvrez notre jeu du Memory dédié à l'apprentissage de la LSF conçu pour apprendre en s'amusant. Associez les cartes pour relier un signe au mot correspondant. Renforcez votre mémoire visuelle et enrichissez progressivement votre vocabulaire en LSF",
-        image: placeHolder,
+        image: memoire,
+        href: "#",
     },
 ];
 ---
@@ -44,7 +47,7 @@ const elements = [
                             <div class="font-semibold text-xl">{item.nom}</div>
                             <p>{item.description}</p>
                             <a
-                                href="#"
+                                href={item.href}
                                 class=" flex justify-center items-center bg-bleu text-beige rounded-lg w-47.25 h-10 "
                             >
                                 Jouer dès maintenant
