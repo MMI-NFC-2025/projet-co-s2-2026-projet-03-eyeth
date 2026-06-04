@@ -1,0 +1,35 @@
+---
+// src/components/UserMenu.astro
+// Affiche le nom de l'utilisateur connecté et un bouton de déconnexion.
+// Usage : <UserMenu /> dans ton header/layout.
+---
+
+<div id="user-menu" class="hidden items-center gap-3">
+    <span id="user-label" class="text-sm text-[#9e9585]"></span>
+    <button
+        id="logout-btn"
+        class="text-xs px-3 py-1.5 rounded-full border border-[#2a2820] text-[#9e9585] hover:text-[#f5f0e8] hover:border-[#c8a96e] transition-all"
+    >
+        Déconnexion
+    </button>
+</div>
+
+<script type="module">
+    import { getCurrentUser, logout, isLoggedIn } from "/src/js/auth.js";
+
+    const menu = document.getElementById("user-menu");
+    const label = document.getElementById("user-label");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    if (isLoggedIn()) {
+        const user = getCurrentUser();
+        label.textContent = user?.username || user?.email || "Compte";
+        menu.classList.remove("hidden");
+        menu.classList.add("flex");
+    }
+
+    logoutBtn.addEventListener("click", () => {
+        logout();
+        window.location.href = "/login";
+    });
+</script>

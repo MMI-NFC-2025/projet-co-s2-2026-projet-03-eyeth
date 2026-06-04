@@ -2,9 +2,15 @@
 import "../styles/global.css";
 import { Image } from "astro:assets";
 import background from "../assets/backimage_footer.svg";
+
+const navLinks = [
+    { label: "Nos jeux", href: "/jeux" },
+    { label: "Nos Packs", href: "/packs/" },
+    { label: "À propos", href: "/info" },
+    { label: "Nous contacter", href: "/" },
+];
 ---
 
-<!-- vérifier avec colorable si le texte va être bien visible ou pas -->
 <footer class="flex relative overflow-hidden text-beige">
     <Image
         class="absolute z-1 object-cover object-top w-full col-span-2 bottom-0"
@@ -18,18 +24,13 @@ import background from "../assets/backimage_footer.svg";
             <ul
                 class="flex flex-col gap-5 list-none text-xl font-semibold u-list-unstyled"
             >
-                <li>
-                    <a href="/jeux">Nos jeux</a>
-                </li>
-                <li>
-                    <a href="#">Leçons</a>
-                </li>
-                <li>
-                    <a href="/info">À propos</a>
-                </li>
-                <li>
-                    <a href="#">Nous contacter</a>
-                </li>
+                {
+                    navLinks.map((navLink) => (
+                        <li>
+                            <a href={navLink.href}>{navLink.label}</a>
+                        </li>
+                    ))
+                }
             </ul>
         </nav>
 
@@ -49,7 +50,9 @@ import background from "../assets/backimage_footer.svg";
         >
             <ul>
                 <li class="py-2">
-                    <a href="+33 05 05 05 05 05 " class="font-normal"> +33 05 05 05 05 05 </a>
+                    <a href="+33 05 05 05 05 05 " class="font-normal">
+                        +33 05 05 05 05 05
+                    </a>
                 </li>
                 <li class="py-2">
                     <a href="eyeth@gmail.com" class="text-2xl font-medium">

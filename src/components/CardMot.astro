@@ -1,0 +1,10 @@
+---
+const { mot } = Astro.props;
+---
+
+<a
+    class="rounded-lg flex justify-center items-center border border-rouge text-xl font-semibold w-full h-10"
+    href={`/mots/${mot.id}`}
+>
+    {mot.mot}
+</a>

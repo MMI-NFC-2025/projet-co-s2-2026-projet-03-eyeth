@@ -1,0 +1,410 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import backImg from "../../../assets/menu.webp";
+import { getMotsForPack } from "../../../js/backend.js";
+
+const id = Astro.params.id;
+const mots = await getMotsForPack(id);
+
+const lessonsDataRaw = mots
+    ? mots.map((item, index) => {
+          let publicVideoUrl = "";
+
+          if (item.video) {
+              publicVideoUrl = `https://eyeth-pocketbase.lola-brouart.fr/api/files/${item.collectionId}/${item.id}/${item.video}`;
+          }
+
+          return {
+              ...item,
+              id: item.id || index,
+              videoSrc: publicVideoUrl,
+              word: item.mot,
+          };
+      })
+    : [];
+---
+
+<Layout title="Nouvelle Leçon" hideFooter="true">
+    <Image
+        id="menu-bg"
+        src={backImg}
+        alt="Fond du menu"
+        aria-hidden="true"
+        class="absolute inset-0 w-full object-cover -z-10 h-auto"
+    />
+    <div class="h-full flex flex-col items-center justify-start p-4 w-full">
+        <div
+            id="setup-screen"
+            class="rounded-2xl flex flex-col items-center text-center w-full p-10 max-w-sm"
+        >
+            <h1 class="text-6xl text-beige mb-3">Objectif</h1>
+            <p class="text-beige mb-8 text-xl">
+                Combien d'exercices voulez-vous faire ?
+            </p>
+            <div class="space-y-3">
+                <button
+                    data-count="10"
+                    class="btn-start w-full py-4 px-6 bg-beige text-bleu rounded-xl text-xl font-semibold"
+                    >10 exercices
+                </button>
+                <button
+                    data-count="15"
+                    class="btn-start w-full py-4 px-6 bg-beige text-bleu rounded-xl text-xl font-semibold"
+                    >15 exercices
+                </button>
+                <button
+                    data-count="20"
+                    class="btn-start w-full py-4 px-6 bg-beige text-bleu rounded-xl text-xl font-semibold"
+                    >20 exercices
+                </button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="hidden w-full flex-col items-center">
+            <div class="mb-6 w-full max-w-sm">
+                <div
+                    class="flex justify-between text-sm font-semibold text-beige mb-2"
+                >
+                    <span>Progression</span>
+                    <span id="progress-text">0 / 10</span>
+                </div>
+                <div class="w-full bg-beige rounded-full h-3 overflow-hidden">
+                    <div
+                        id="progress-bar"
+                        class="bg-rouge h-3 rounded-full transition-all duration-500 ease-out"
+                        style="width: 0%"
+                    >
+                    </div>
+                </div>
+            </div>
+
+            <div
+                id="exercise-container"
+                class="p-5 rounded-2xl shadow-lg w-full max-w-sm flex flex-col items-center justify-center min-h-112.5"
+            >
+            </div>
+            <div
+                id="feedback-area"
+                class="hidden mt-4 p-4 rounded-xl text-center font-bold text-base w-full max-w-sm"
+            >
+            </div>
+            <button
+                id="next-btn"
+                class="hidden w-full max-w-sm mt-4 py-4 bg-rouge text-beige font-bold rounded-xl shadow-lg transition transform active:scale-95 touch-manipulation"
+                >Continuer</button
+            >
+        </div>
+    </div>
+
+    <script define:vars={{ mots: lessonsDataRaw }}>
+        const lessonsData = mots;
+        const exerciseTypes = [
+            "video-to-choice",
+            "video-to-text",
+            "word-to-video",
+        ];
+        let currentLessonQueue = [];
+        let currentIndex = 0;
+        let totalExercises = 0;
+
+        function shuffleArray(array) {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+        function createMediaElement(src, isInteractive = false) {
+            const container = document.createElement("div");
+            container.className =
+                "w-full rounded-lg aspect-video overflow-hidden relative m-1";
+
+            let videoSrc = "";
+            let isVideo = false;
+
+            if (src instanceof Blob || src instanceof File) {
+                videoSrc = URL.createObjectURL(src);
+                isVideo = true;
+            } else if (typeof src === "string") {
+                videoSrc = src;
+
+                isVideo = src.endsWith(".mp4") || src.endsWith(".webm");
+            } else {
+                console.warn("Source média invalide:", src);
+                container.innerHTML = `<div class="flex items-center justify-center w-full h-full text-white text-xs">Média manquant</div>`;
+                return container;
+            }
+
+            if (isVideo) {
+                const vid = document.createElement("video");
+                vid.src = videoSrc;
+
+                vid.className = "w-full h-full object-cover touch-none";
+
+                vid.playsInline = true;
+                vid.muted = true;
+                vid.loop = true;
+                vid.controls = !isInteractive;
+
+                if (!isInteractive) {
+                    vid.autoplay = true;
+                    vid.load();
+                } else {
+                    vid.muted = true;
+                    vid.autoplay = false;
+                }
+                vid.onloadedmetadata = () => {
+                    if (videoSrc.startsWith("blob:")) {
+                    }
+                };
+
+                vid.onerror = (e) => {
+                    console.error("Erreur chargement vidéo:", src, e);
+                    container.innerHTML = `<div class="flex items-center justify-center w-auto h-full text-white text-xs bg-red-900 p-2">Vidéo introuvable (Vérifiez l'URL ou le Blob)</div>`;
+                };
+
+                container.appendChild(vid);
+            } else {
+                const img = document.createElement("img");
+                img.src = videoSrc;
+                img.className = "w-full h-full object-cover touch-none";
+                img.alt = "Media";
+                img.loading = "lazy";
+                container.appendChild(img);
+            }
+            return container;
+        }
+
+        function startLesson(count) {
+            totalExercises = count;
+            const selectedItems = shuffleArray(lessonsData).slice(0, count);
+            currentLessonQueue = selectedItems.map((item) => {
+                const randomType =
+                    exerciseTypes[
+                        Math.floor(Math.random() * exerciseTypes.length)
+                    ];
+                return { ...item, type: randomType };
+            });
+            currentIndex = 0;
+            const setupScreen = document.getElementById("setup-screen");
+            const gameScreen = document.getElementById("game-screen");
+            if (setupScreen && gameScreen) {
+                setupScreen.classList.add("hidden");
+                gameScreen.classList.remove("hidden");
+                gameScreen.classList.add("flex");
+                renderExercise();
+            }
+        }
+
+        function updateProgress() {
+            const percent = (currentIndex / totalExercises) * 100;
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+            if (progressBar) progressBar.style.width = `${percent}%`;
+            if (progressText)
+                progressText.innerText = `${currentIndex} / ${totalExercises}`;
+        }
+
+        function renderExercise() {
+            if (currentIndex >= totalExercises) {
+                finishLesson();
+                return;
+            }
+            const currentData = currentLessonQueue[currentIndex];
+            const container = document.getElementById("exercise-container");
+            const feedback = document.getElementById("feedback-area");
+            const nextBtn = document.getElementById("next-btn");
+            if (!container) return;
+            feedback?.classList.add("hidden");
+            nextBtn?.classList.add("hidden");
+            container.innerHTML = "";
+            updateProgress();
+
+            if (currentData.type === "video-to-choice")
+                renderVideoToChoice(currentData, container);
+            else if (currentData.type === "video-to-text")
+                renderVideoToText(currentData, container);
+            else if (currentData.type === "word-to-video")
+                renderWordToVideo(currentData, container);
+        }
+
+        function renderVideoToChoice(data, container) {
+            const title = document.createElement("h2");
+            title.className =
+                "text-xl font-bold mb-4 text-center bg-transparent text-beige";
+            title.innerText = "Quel est ce mot ?";
+            container.appendChild(title);
+
+            container.appendChild(createMediaElement(data.videoSrc));
+
+            const wrongAnswers = shuffleArray(
+                lessonsData.filter((i) => i.id !== data.id),
+            ).slice(0, 3);
+            const options = shuffleArray([...wrongAnswers, data]);
+            const grid = document.createElement("div");
+            grid.className = "grid grid-cols-2 gap-3 w-full";
+            options.forEach((opt) => {
+                const btn = document.createElement("button");
+                btn.className =
+                    "m-2 p-4 bg-beige border-2 border-transparent  rounded-xl font-bold  ";
+                btn.innerText = opt.word;
+                btn.onclick = () => checkAnswer(opt.id === data.id, data.word);
+                grid.appendChild(btn);
+            });
+            container.appendChild(grid);
+        }
+
+        function renderVideoToText(data, container) {
+            const title = document.createElement("h2");
+            title.className =
+                "text-xl font-bold mb-4 text-beige bg-transparent text-center";
+            title.innerText = "Écrivez ce que vous voyez";
+            container.appendChild(title);
+
+            container.appendChild(createMediaElement(data.videoSrc));
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.placeholder = "Tapez le mot ici...";
+            input.className =
+                "w-full p-4 border-2 border-rouge bg-beige rounded-xl text-lg m-4 ";
+            input.autocomplete = "off";
+            const submitBtn = document.createElement("button");
+            submitBtn.className =
+                "w-full py-4 bg-rouge text-beige font-bold rounded-xl ";
+            submitBtn.innerText = "Valider";
+            submitBtn.onclick = () => {
+                const isCorrect =
+                    input.value.trim().toLowerCase() ===
+                    data.word.toLowerCase();
+                checkAnswer(isCorrect, data.word);
+            };
+            container.appendChild(input);
+            container.appendChild(submitBtn);
+            input.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") submitBtn.click();
+            });
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function renderWordToVideo(data, container) {
+            const title = document.createElement("h2");
+            title.className =
+                "text-xl font-bold mb-6 text-beige bg-transparent text-center";
+            title.innerText = `Trouvez la vidéo pour : "${data.word}"`;
+            container.appendChild(title);
+
+            const wrongAnswers = shuffleArray(
+                lessonsData.filter((i) => i.id !== data.id),
+            ).slice(0, 3);
+            const options = shuffleArray([...wrongAnswers, data]);
+            const grid = document.createElement("div");
+            grid.className = "grid grid-cols-2 gap-3 w-full";
+
+            options.forEach((opt) => {
+                const card = document.createElement("div");
+                card.className = "cursor-pointer group active:scale-95 ";
+                card.dataset.id = opt.id; // ← Ajout pour identifier la carte
+                card.dataset.correct = opt.id === data.id ? "true" : "false"; // ← Ajout
+
+                const mediaContainer = createMediaElement(opt.videoSrc, true);
+                const mediaEl = mediaContainer.firstElementChild;
+                if (mediaEl) {
+                    if (mediaEl.tagName === "VIDEO") {
+                        mediaEl.muted = true;
+                        // Gestion survol
+                        if (!window.matchMedia("(pointer: coarse)").matches) {
+                            card.onmouseenter = () => mediaEl.play();
+                            card.onmouseleave = () => {
+                                mediaEl.pause();
+                                mediaEl.currentTime = 0;
+                            };
+                        }
+                    }
+                }
+
+                card.appendChild(mediaContainer);
+                card.onclick = () => checkAnswer(opt.id === data.id, data.word);
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+
+        function checkAnswer(isCorrect, correctWord) {
+            const feedback = document.getElementById("feedback-area");
+            const nextBtn = document.getElementById("next-btn");
+            const container = document.getElementById("exercise-container");
+            if (!container || !feedback || !nextBtn) return;
+            const allBtns = container.querySelectorAll("button, input");
+            allBtns.forEach((el) => (el.disabled = true));
+            const allCards = container.querySelectorAll("div");
+            allCards.forEach((el) => (el.style.pointerEvents = "none"));
+
+            container.querySelectorAll("[data-correct]").forEach((card) => {
+                if (card.dataset.correct === "true") {
+                    card.classList.add(
+                        "ring-4",
+                        "ring-green-500",
+                        "ring-offset-2",
+                        "rounded-lg",
+                        "m-2",
+                        "flex",
+                        "items-center",
+                        "justify-center",
+                    );
+                    card.style.backgroundColor = "#dcfce7"; // bg-green-100
+                } else if (card.dataset.correct === "false" && !isCorrect) {
+                    // Optionnel : griser les mauvaises réponses
+                    card.style.opacity = "0.4";
+                }
+            });
+
+            feedback.classList.remove("hidden");
+            nextBtn.classList.remove("hidden");
+            if (isCorrect) {
+                feedback.className =
+                    "mt-4 p-4 rounded-xl text-center font-bold text-base w-full bg-green-100 text-green-700";
+                feedback.innerText = "Bravo ! 🎉";
+            } else {
+                feedback.className =
+                    "mt-4 p-4 rounded-xl text-center font-bold text-base w-full bg-red-100 text-red-700";
+                feedback.innerText = `Oups ! La réponse était : ${correctWord}`;
+            }
+            nextBtn.onclick = () => {
+                currentIndex++;
+                renderExercise();
+            };
+        }
+
+        function finishLesson() {
+            const container = document.getElementById("exercise-container");
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+            if (progressBar) progressBar.style.width = "100%";
+            if (progressText)
+                progressText.innerText = `${totalExercises} / ${totalExercises}`;
+            if (container) {
+                container.innerHTML = `<div class="text-center w-full"><div class="text-6xl mb-4">🏆</div><h2 class="text-2xl font-bold mb-2 text-beige rounded-xl">Leçon terminée !</h2><p class="text-beige mb-8 text-lg">Vous avez complété tous les exercices.</p><button id="reload-btn" class="w-full px-8 py-4 bg-rouge text-beige font-bold rounded-xl ">Rejouer</button></div>`;
+            }
+            const feedbackArea = document.getElementById("feedback-area");
+            const nextBtn = document.getElementById("next-btn");
+            feedbackArea?.classList.add("hidden");
+            nextBtn?.classList.add("hidden");
+            const reloadBtn = document.getElementById("reload-btn");
+            if (reloadBtn)
+                reloadBtn.addEventListener("click", () => location.reload());
+        }
+
+        document.querySelectorAll(".btn-start").forEach((button) => {
+            button.addEventListener("click", () => {
+                const count = parseInt(
+                    button.getAttribute("data-count") || "10",
+                    10,
+                );
+                startLesson(count);
+            });
+        });
+    </script>
+</Layout>
