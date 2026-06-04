@@ -12,18 +12,21 @@ const elements = [
         description:
             "Découvrez notre jeu du Memory dédié à l'apprentissage de la LSF conçu pour apprendre en s'amusant. Associez les cartes pour relier un signe au mot correspondant. Renforcez votre mémoire visuelle et enrichissez progressivement votre vocabulaire en LSF",
         image: placeHolder,
+        href: "/jeuxMemory",
     },
     {
         nom: "Undercover",
         description:
             "Découvrez notre jeu du Memory dédié à l'apprentissage de la LSF conçu pour apprendre en s'amusant. Associez les cartes pour relier un signe au mot correspondant. Renforcez votre mémoire visuelle et enrichissez progressivement votre vocabulaire en LSF",
         image: placeHolder,
+        href: "#",
     },
     {
         nom: "Mots-mêlés",
         description:
             "Découvrez notre jeu du Memory dédié à l'apprentissage de la LSF conçu pour apprendre en s'amusant. Associez les cartes pour relier un signe au mot correspondant. Renforcez votre mémoire visuelle et enrichissez progressivement votre vocabulaire en LSF",
         image: placeHolder,
+        href: "#",
     },
 ];
 ---
@@ -44,7 +47,7 @@ const elements = [
                             <div class="font-semibold text-xl">{item.nom}</div>
                             <p>{item.description}</p>
                             <a
-                                href="#"
+                                href={item.href}
                                 class=" flex justify-center items-center bg-bleu text-beige rounded-lg w-47.25 h-10 "
                             >
                                 Jouer dès maintenant

@@ -1,0 +1,328 @@
+---
+import { getMotsAleatoires, pb } from "../js/backend.js";
+
+// Récupération côté serveur — appel APIVerve + correspondance catalogue
+// La clé API reste côté serveur, jamais exposée au client
+const selection = await getMotsAleatoires(3);
+
+// Construction des URLs PocketBase pour chaque illustration
+// (même logique que le composant ImagePb)
+const motsSerialized = JSON.stringify(
+    selection.map((m) => ({
+        ...m,
+        illustrationUrl: m.illustration
+            ? pb.files.getURL(m, m.illustration, { thumb: "400x400" })
+            : null,
+    })),
+);
+---
+
+<div id="memory-root" class="w-full px-1 py-6" data-mots={motsSerialized}>
+    <!-- Barre de statut -->
+    <div class="flex items-center justify-between mb-5">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            Paires trouvées :
+            <span
+                id="score"
+                class="font-semibold text-gray-800 dark:text-gray-100">0</span
+            >
+            /
+            <span
+                id="total"
+                class="font-semibold text-gray-800 dark:text-gray-100">3</span
+            >
+        </p>
+        <button
+            id="btn-restart"
+            class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700
+             text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800
+             transition-colors duration-150 cursor-pointer"
+        >
+            ↻ Recommencer
+        </button>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div
+        id="error-msg"
+        class="hidden p-3 text-sm text-red-700 bg-red-50 dark:bg-red-950 dark:text-red-300
+           rounded-xl border border-red-200 dark:border-red-800 mb-4"
+    >
+    </div>
+
+    <!-- Grille 2×3 -->
+    <div id="grid" class="grid grid-cols-3 gap-3"></div>
+
+    <!-- Bannière victoire -->
+    <div
+        id="win-banner"
+        class="hidden mt-5 text-center py-6 px-4 rounded-2xl
+           bg-emerald-50 dark:bg-emerald-950
+           border border-emerald-200 dark:border-emerald-800"
+    >
+        <p
+            class="text-xl font-medium text-emerald-800 dark:text-emerald-100 mb-1"
+        >
+            Bravo ! 🎉
+        </p>
+        <p id="win-msg" class="text-sm text-emerald-600 dark:text-emerald-300">
+        </p>
+    </div>
+</div>
+
+<!-- Styles flip 3D (non gérables uniquement en Tailwind) -->
+<style>
+    .card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card.flipped .card-inner,
+    .card.matched .card-inner {
+        transform: rotateY(180deg);
+    }
+    .card-face {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    .card-front {
+        transform: rotateY(180deg);
+    }
+</style>
+
+<script>
+    const PALETTES = [
+        {
+            bg: "bg-violet-100 dark:bg-violet-900",
+            dot: "bg-violet-300 dark:bg-violet-700",
+        },
+        {
+            bg: "bg-emerald-100 dark:bg-emerald-900",
+            dot: "bg-emerald-300 dark:bg-emerald-700",
+        },
+        {
+            bg: "bg-orange-100 dark:bg-orange-900",
+            dot: "bg-orange-300 dark:bg-orange-700",
+        },
+    ];
+
+    const EMOJIS = ["⭐", "🌈", "🎈"];
+
+    interface Mot {
+        mot: string;
+        video: string | null;
+        illu: string | null;
+        illustrationUrl: string | null;
+    }
+
+    interface Card {
+        id: string;
+        pairId: number;
+        type: "word" | "illus";
+        content: string;
+        palette: (typeof PALETTES)[0];
+        emoji: string;
+    }
+
+    let flipped: { el: HTMLElement; card: Card }[] = [];
+    let matched = 0;
+    let locked = false;
+    let moves = 0;
+    let allCards: Card[] = [];
+
+    function shuffle<T>(arr: T[]): T[] {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function buildCards(paires: Mot[]): Card[] {
+        const cards: Card[] = [];
+        paires.forEach((p, i) => {
+            const palette = PALETTES[i % PALETTES.length];
+            const emoji = EMOJIS[i % EMOJIS.length];
+            cards.push({
+                id: `w${i}`,
+                pairId: i,
+                type: "word",
+                content: p.mot,
+                palette,
+                emoji,
+            });
+            cards.push({
+                id: `i${i}`,
+                pairId: i,
+                type: "illus",
+                content: p.illustrationUrl ?? "",
+                palette,
+                emoji,
+            });
+        });
+        return shuffle(cards);
+    }
+
+    function renderGrid(cards: Card[]) {
+        const grid = document.getElementById("grid")!;
+        grid.innerHTML = "";
+        allCards = cards;
+
+        cards.forEach((c) => {
+            const el = document.createElement("div");
+            el.className = "card aspect-[2/3] cursor-pointer";
+            el.style.perspective = "800px";
+            el.dataset.id = c.id;
+            el.dataset.pair = String(c.pairId);
+
+            const inner = document.createElement("div");
+            inner.className = "card-inner rounded-2xl";
+
+            // ── DOS ──
+            const back = document.createElement("div");
+            back.className = `card-face rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 ${c.palette.bg}`;
+            const dot = document.createElement("div");
+            dot.className = `w-12 h-12 rounded-full flex items-center justify-center text-2xl ${c.palette.dot}`;
+            dot.textContent = c.emoji;
+            back.appendChild(dot);
+
+            // ── FACE ──
+            const front = document.createElement("div");
+            front.className =
+                "card-face card-front rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden";
+
+            if (c.type === "word") {
+                const span = document.createElement("span");
+                span.className = `text-center font-semibold px-3 leading-snug text-gray-800 dark:text-gray-100 ${c.content.length > 8 ? "text-base" : "text-xl"}`;
+                span.textContent = c.content;
+                front.appendChild(span);
+            } else {
+                const img = document.createElement("img");
+                img.src = c.content; // illustrationUrl déjà construite côté serveur
+                img.alt = "illustration";
+                img.className = "w-full h-full object-cover";
+                img.loading = "lazy";
+                img.onerror = () => {
+                    img.replaceWith(
+                        Object.assign(document.createElement("span"), {
+                            className: "text-4xl",
+                            textContent: "🖼️",
+                        }),
+                    );
+                };
+                front.appendChild(img);
+            }
+
+            inner.appendChild(back);
+            inner.appendChild(front);
+            el.appendChild(inner);
+
+            el.addEventListener("click", () => onCardClick(el, c));
+            grid.appendChild(el);
+        });
+    }
+
+    function onCardClick(el: HTMLElement, card: Card) {
+        if (locked) return;
+        if (
+            el.classList.contains("flipped") ||
+            el.classList.contains("matched")
+        )
+            return;
+
+        el.classList.add("flipped");
+        flipped.push({ el, card });
+
+        if (flipped.length === 2) {
+            locked = true;
+            moves++;
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const [a, b] = flipped;
+        const isMatch =
+            a.card.pairId === b.card.pairId && a.card.type !== b.card.type;
+
+        if (isMatch) {
+            a.el.classList.add("matched");
+            b.el.classList.add("matched");
+            [a.el, b.el].forEach((el) => {
+                el.querySelector(".card-front")?.classList.add(
+                    "!border-emerald-400",
+                    "ring-2",
+                    "ring-emerald-400",
+                );
+            });
+            matched++;
+            document.getElementById("score")!.textContent = String(matched);
+            flipped = [];
+            locked = false;
+            if (matched === allCards.length / 2) showWin();
+        } else {
+            setTimeout(() => {
+                a.el.classList.remove("flipped");
+                b.el.classList.remove("flipped");
+                flipped = [];
+                locked = false;
+            }, 1000);
+        }
+    }
+
+    function showWin() {
+        const banner = document.getElementById("win-banner")!;
+        banner.classList.remove("hidden");
+        document.getElementById("win-msg")!.textContent =
+            `Toutes les paires trouvées en ${moves} tentative${moves > 1 ? "s" : ""} !`;
+    }
+
+    function showError(msg: string) {
+        const el = document.getElementById("error-msg")!;
+        el.textContent = msg;
+        el.classList.remove("hidden");
+    }
+
+    function init() {
+        const root = document.getElementById("memory-root")!;
+        const raw = root.dataset.mots ?? "[]";
+
+        let mots: Mot[] = [];
+        try {
+            mots = JSON.parse(raw);
+        } catch {
+            showError("Impossible de lire les données des mots.");
+            return;
+        }
+
+        if (mots.length < 3) {
+            showError(
+                "Pas assez de mots avec illustration (minimum 3 requis).",
+            );
+            return;
+        }
+
+        flipped = [];
+        matched = 0;
+        locked = false;
+        moves = 0;
+        document.getElementById("score")!.textContent = "0";
+        document.getElementById("total")!.textContent = String(mots.length);
+        document.getElementById("win-banner")!.classList.add("hidden");
+        document.getElementById("error-msg")!.classList.add("hidden");
+
+        renderGrid(buildCards(mots));
+    }
+
+    // Recommencer = nouveau tirage = rechargement de page (frontmatter ré-exécuté)
+    document.getElementById("btn-restart")?.addEventListener("click", () => {
+        window.location.reload();
+    });
+
+    init();
+</script>
