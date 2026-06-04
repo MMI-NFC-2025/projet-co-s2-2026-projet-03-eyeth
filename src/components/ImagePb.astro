@@ -18,7 +18,7 @@ const imageUrl = record?.[field]
     imageUrl ? (
         <img
             src={imageUrl}
-            alt={alt || "Image du pack"}
+            alt={alt || field.mot}
             class={classImg}
             loading="lazy"
             width="400"
