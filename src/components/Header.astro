@@ -1,5 +1,4 @@
 ---
-import "../styles/global.css";
 import UserMenu from "../components/UserMenu.astro";
 import { Image } from "astro:assets";
 import logoBleu from "../assets/eyethBleu.svg";
@@ -12,7 +11,6 @@ const navLinks = [
   { label: "Nos Packs", href: "/packs/" },
   { label: "Dictionnaire", href: "/mots/" },
   { label: "À propos", href: "/info" },
-  { label: "Contact", href: "/" },
 ];
 ---
 
@@ -105,24 +103,6 @@ const navLinks = [
 
       <ul class="flex flex-col gap-2 w-full max-w-md">
         <UserMenu />
-        <li>
-          <a
-            href="/connexion"
-            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
-            style={`transition-delay: ${250}ms`}
-          >
-            Connexion
-          </a>
-        </li>
-        <li>
-          <a
-            href="/inscription"
-            class="mobile-link block px-3 py-3 text-lg text-beige transition-all duration-300 ease-out opacity-0 translate-y-4 pointer-events-none"
-            style={`transition-delay: ${300}ms`}
-          >
-            Inscription
-          </a>
-        </li>
       </ul>
     </div>
   </nav>
@@ -142,7 +122,6 @@ const navLinks = [
   const LOGO_MENU = logo.dataset.logoMenu!;
   const header = document.getElementById("header")!;
   const menuBg = document.getElementById("menu-bg")!;
-  const boutonConnexion = document.getElementById("bouton-connexion")!;
   const line1 = document.getElementById("line1")!;
   const line2 = document.getElementById("line2")!;
 
@@ -179,8 +158,6 @@ const navLinks = [
       line1.classList.add("opacity-10");
       line2.classList.remove("opacity-0");
       line2.classList.add("opacity-100");
-
-      boutonConnexion.classList.add("opacity-0", "pointer-events-none");
 
       requestAnimationFrame(() => {
         links.forEach((link) => {
@@ -232,8 +209,6 @@ const navLinks = [
       line1.classList.add("opacity-0");
       line2.classList.remove("opacity-100");
       line2.classList.add("opacity-0");
-
-      boutonConnexion.classList.remove("opacity-0", "pointer-events-none");
 
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
