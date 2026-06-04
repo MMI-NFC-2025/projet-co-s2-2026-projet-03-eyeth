@@ -1,122 +1,79 @@
 ---
 import { getMotsAleatoires, pb } from "../js/backend.js";
+import { Image } from "astro:assets";
+import logo from "../assets/eyethRouge.svg";
 
-// Récupération côté serveur — appel APIVerve + correspondance catalogue
-// La clé API reste côté serveur, jamais exposée au client
 const selection = await getMotsAleatoires(3);
 
-// Construction des URLs PocketBase pour chaque illustration
-// (même logique que le composant ImagePb)
 const motsSerialized = JSON.stringify(
-    selection.map((m) => ({
-        ...m,
-        illustrationUrl: m.illustration
+    selection.map((m) => {
+        const mainUrl = m.illustration
             ? pb.files.getURL(m, m.illustration, { thumb: "400x400" })
-            : null,
-    })),
+            : null;
+        const fallbackUrl = m.illu
+            ? pb.files.getURL(m, m.illu, { thumb: "400x400" })
+            : null;
+
+        return {
+            ...m,
+            mainUrl,
+            fallbackUrl,
+        };
+    }),
 );
+
+const logoUrl = logo.src;
 ---
 
-<div id="memory-root" class="w-full px-1 py-6" data-mots={motsSerialized}>
-    <!-- Barre de statut -->
-    <div class="flex items-center justify-between mb-5">
-        <p class="text-sm text-gray-500 dark:text-gray-400">
+<!-- MODIFICATION : Augmentation du padding horizontal (px-4 au lieu de px-2) pour réduire la taille des cartes -->
+<div
+    id="memory-root"
+    class="w-full px-4 py-6"
+    data-mots={motsSerialized}
+    data-logo={logoUrl}
+>
+    <div class="flex items-center justify-between mb-4">
+        <p class="text-xs text-bleu">
             Paires trouvées :
-            <span
-                id="score"
-                class="font-semibold text-gray-800 dark:text-gray-100">0</span
-            >
+            <span id="score" class="font-semibold text-bleu">0</span>
             /
-            <span
-                id="total"
-                class="font-semibold text-gray-800 dark:text-gray-100">3</span
-            >
+            <span id="total" class="font-semibold text-bleu">3</span>
         </p>
         <button
             id="btn-restart"
-            class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700
-             text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800
-             transition-colors duration-150 cursor-pointer"
+            class="text-[10px] px-2 py-1 rounded-lg border border-rouge
+             text-beige bg-bleu"
         >
             ↻ Recommencer
         </button>
     </div>
 
-    <!-- Message d'erreur -->
     <div
         id="error-msg"
-        class="hidden p-3 text-sm text-red-700 bg-red-50 dark:bg-red-950 dark:text-red-300
-           rounded-xl border border-red-200 dark:border-red-800 mb-4"
+        class="hidden p-2 text-xs text-red-700 bg-red-50 rounded-xl border border-red-200 mb-3"
     >
     </div>
 
-    <!-- Grille 2×3 -->
-    <div id="grid" class="grid grid-cols-3 gap-3"></div>
+    <!-- Grille 2 colonnes avec un écart légèrement réduit pour accompagner la taille des cartes -->
+    <div id="grid" class="grid grid-cols-2 gap-3"></div>
 
-    <!-- Bannière victoire -->
     <div
         id="win-banner"
-        class="hidden mt-5 text-center py-6 px-4 rounded-2xl
-           bg-emerald-50 dark:bg-emerald-950
-           border border-emerald-200 dark:border-emerald-800"
+        class="hidden mt-4 text-center py-4 px-3 rounded-2xl bg-emerald-50 border border-emerald-200"
     >
-        <p
-            class="text-xl font-medium text-emerald-800 dark:text-emerald-100 mb-1"
-        >
-            Bravo ! 🎉
-        </p>
-        <p id="win-msg" class="text-sm text-emerald-600 dark:text-emerald-300">
-        </p>
+        <p class="text-lg font-medium text-emerald-800">Bravo ! 🎉</p>
+        <p id="win-msg" class="text-xs text-emerald-600"></p>
     </div>
 </div>
 
-<!-- Styles flip 3D (non gérables uniquement en Tailwind) -->
-<style>
-    .card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        transform-style: preserve-3d;
-        transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .card.flipped .card-inner,
-    .card.matched .card-inner {
-        transform: rotateY(180deg);
-    }
-    .card-face {
-        position: absolute;
-        inset: 0;
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-    }
-    .card-front {
-        transform: rotateY(180deg);
-    }
-</style>
-
 <script>
-    const PALETTES = [
-        {
-            bg: "bg-violet-100 dark:bg-violet-900",
-            dot: "bg-violet-300 dark:bg-violet-700",
-        },
-        {
-            bg: "bg-emerald-100 dark:bg-emerald-900",
-            dot: "bg-emerald-300 dark:bg-emerald-700",
-        },
-        {
-            bg: "bg-orange-100 dark:bg-orange-900",
-            dot: "bg-orange-300 dark:bg-orange-700",
-        },
-    ];
+    const CARD_BG = "bg-bleu ";
+    const DOT_BG = "bg-white/20";
 
-    const EMOJIS = ["⭐", "🌈", "🎈"];
-
-    interface Mot {
+    interface MotData {
         mot: string;
-        video: string | null;
-        illu: string | null;
-        illustrationUrl: string | null;
+        mainUrl: string | null;
+        fallbackUrl: string | null;
     }
 
     interface Card {
@@ -124,8 +81,8 @@ const motsSerialized = JSON.stringify(
         pairId: number;
         type: "word" | "illus";
         content: string;
-        palette: (typeof PALETTES)[0];
-        emoji: string;
+        fallbackUrl: string | null;
+        logoUrl: string;
     }
 
     let flipped: { el: HTMLElement; card: Card }[] = [];
@@ -143,26 +100,24 @@ const motsSerialized = JSON.stringify(
         return a;
     }
 
-    function buildCards(paires: Mot[]): Card[] {
+    function buildCards(paires: MotData[], logoUrl: string): Card[] {
         const cards: Card[] = [];
         paires.forEach((p, i) => {
-            const palette = PALETTES[i % PALETTES.length];
-            const emoji = EMOJIS[i % EMOJIS.length];
             cards.push({
                 id: `w${i}`,
                 pairId: i,
                 type: "word",
                 content: p.mot,
-                palette,
-                emoji,
+                fallbackUrl: null,
+                logoUrl,
             });
             cards.push({
                 id: `i${i}`,
                 pairId: i,
                 type: "illus",
-                content: p.illustrationUrl ?? "",
-                palette,
-                emoji,
+                content: p.mainUrl || "",
+                fallbackUrl: p.fallbackUrl,
+                logoUrl,
             });
         });
         return shuffle(cards);
@@ -175,51 +130,102 @@ const motsSerialized = JSON.stringify(
 
         cards.forEach((c) => {
             const el = document.createElement("div");
-            el.className = "card aspect-[2/3] cursor-pointer";
-            el.style.perspective = "800px";
+            el.className = "card aspect-square cursor-pointer";
+            el.style.perspective = "1000px";
             el.dataset.id = c.id;
             el.dataset.pair = String(c.pairId);
 
             const inner = document.createElement("div");
-            inner.className = "card-inner rounded-2xl";
+            inner.className = "card-inner";
+            inner.style.transformStyle = "preserve-3d";
+            inner.style.transition =
+                "transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)";
+            inner.style.position = "relative";
+            inner.style.width = "100%";
+            inner.style.height = "100%";
+            inner.style.transform = "rotateY(0deg)";
 
-            // ── DOS ──
-            const back = document.createElement("div");
-            back.className = `card-face rounded-2xl border border-white/30 flex flex-col items-center justify-center gap-2 ${c.palette.bg}`;
-            const dot = document.createElement("div");
-            dot.className = `w-12 h-12 rounded-full flex items-center justify-center text-2xl ${c.palette.dot}`;
-            dot.textContent = c.emoji;
-            back.appendChild(dot);
-
-            // ── FACE ──
             const front = document.createElement("div");
             front.className =
-                "card-face card-front rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden";
+                "card-face rounded-xl  bg-bleu flex items-center justify-center overflow-hidden";
+            front.style.backfaceVisibility = "hidden";
+            front.style.transform = "rotateY(180deg)";
+            front.style.position = "absolute";
+            front.style.width = "100%";
+            front.style.height = "100%";
+            front.style.borderRadius = "0.75rem";
+            front.style.display = "flex";
+            front.style.alignItems = "center";
+            front.style.justifyContent = "center";
+            front.style.zIndex = "1";
 
             if (c.type === "word") {
                 const span = document.createElement("span");
-                span.className = `text-center font-semibold px-3 leading-snug text-gray-800 dark:text-gray-100 ${c.content.length > 8 ? "text-base" : "text-xl"}`;
+                span.className = `text-center font-bold px-1 leading-tight text-beige ${c.content.length > 10 ? "text-xl" : "text-base"}`;
                 span.textContent = c.content;
                 front.appendChild(span);
             } else {
                 const img = document.createElement("img");
-                img.src = c.content; // illustrationUrl déjà construite côté serveur
+                img.src = c.content;
                 img.alt = "illustration";
                 img.className = "w-full h-full object-cover";
                 img.loading = "lazy";
+
                 img.onerror = () => {
-                    img.replaceWith(
-                        Object.assign(document.createElement("span"), {
-                            className: "text-4xl",
-                            textContent: "🖼️",
-                        }),
-                    );
+                    front.innerHTML = "";
+                    if (c.fallbackUrl) {
+                        const fallbackImg = document.createElement("img");
+                        fallbackImg.src = c.fallbackUrl;
+                        fallbackImg.alt = "illustration de secours";
+                        fallbackImg.className = "w-full h-full object-cover";
+                        fallbackImg.loading = "lazy";
+                        fallbackImg.onerror = () => {
+                            front.innerHTML = "";
+                            const span = document.createElement("span");
+                            span.className =
+                                "text-[10px] text-beige text-center px-1";
+                            span.textContent = "Image indisponible";
+                            front.appendChild(span);
+                        };
+                        front.appendChild(fallbackImg);
+                    } else {
+                        const span = document.createElement("span");
+                        span.className =
+                            "text-[10px] text-beige text-center px-1";
+                        span.textContent = "Pas d'image";
+                        front.appendChild(span);
+                    }
                 };
                 front.appendChild(img);
             }
 
-            inner.appendChild(back);
+            const back = document.createElement("div");
+            back.className = `card-face rounded-xl  flex flex-col items-center justify-center gap-1 ${CARD_BG}`;
+            back.style.backfaceVisibility = "hidden";
+            back.style.transform = "rotateY(0deg)";
+            back.style.position = "absolute";
+            back.style.width = "100%";
+            back.style.height = "100%";
+            back.style.borderRadius = "0.75rem";
+            back.style.display = "flex";
+            back.style.alignItems = "center";
+            back.style.justifyContent = "center";
+            back.style.zIndex = "2";
+
+            const imgContainer = document.createElement("div");
+
+            imgContainer.className = `w-1/2 h-1/2 flex items-center justify-center ${DOT_BG} rounded-full p-2`;
+
+            const logoImg = document.createElement("img");
+            logoImg.src = c.logoUrl;
+            logoImg.alt = "Logo";
+            logoImg.className = "w-full h-full object-contain";
+
+            imgContainer.appendChild(logoImg);
+            back.appendChild(imgContainer);
+
             inner.appendChild(front);
+            inner.appendChild(back);
             el.appendChild(inner);
 
             el.addEventListener("click", () => onCardClick(el, c));
@@ -236,6 +242,9 @@ const motsSerialized = JSON.stringify(
             return;
 
         el.classList.add("flipped");
+        const inner = el.querySelector(".card-inner") as HTMLElement;
+        if (inner) inner.style.transform = "rotateY(180deg)";
+
         flipped.push({ el, card });
 
         if (flipped.length === 2) {
@@ -253,13 +262,6 @@ const motsSerialized = JSON.stringify(
         if (isMatch) {
             a.el.classList.add("matched");
             b.el.classList.add("matched");
-            [a.el, b.el].forEach((el) => {
-                el.querySelector(".card-front")?.classList.add(
-                    "!border-emerald-400",
-                    "ring-2",
-                    "ring-emerald-400",
-                );
-            });
             matched++;
             document.getElementById("score")!.textContent = String(matched);
             flipped = [];
@@ -267,6 +269,11 @@ const motsSerialized = JSON.stringify(
             if (matched === allCards.length / 2) showWin();
         } else {
             setTimeout(() => {
+                const innerA = a.el.querySelector(".card-inner") as HTMLElement;
+                const innerB = b.el.querySelector(".card-inner") as HTMLElement;
+                if (innerA) innerA.style.transform = "rotateY(0deg)";
+                if (innerB) innerB.style.transform = "rotateY(0deg)";
+
                 a.el.classList.remove("flipped");
                 b.el.classList.remove("flipped");
                 flipped = [];
@@ -291,8 +298,9 @@ const motsSerialized = JSON.stringify(
     function init() {
         const root = document.getElementById("memory-root")!;
         const raw = root.dataset.mots ?? "[]";
+        const logoUrl = root.dataset.logo ?? "";
 
-        let mots: Mot[] = [];
+        let mots: MotData[] = [];
         try {
             mots = JSON.parse(raw);
         } catch {
@@ -316,13 +324,21 @@ const motsSerialized = JSON.stringify(
         document.getElementById("win-banner")!.classList.add("hidden");
         document.getElementById("error-msg")!.classList.add("hidden");
 
-        renderGrid(buildCards(mots));
+        renderGrid(buildCards(mots, logoUrl));
     }
 
-    // Recommencer = nouveau tirage = rechargement de page (frontmatter ré-exécuté)
-    document.getElementById("btn-restart")?.addEventListener("click", () => {
-        window.location.reload();
-    });
+    document
+        .getElementById("btn-restart")
+        ?.addEventListener("click", () => window.location.reload());
 
     init();
 </script>
+
+<style>
+    .card {
+        cursor: pointer;
+    }
+    .card-inner {
+        transform-style: preserve-3d;
+    }
+</style>
