@@ -1,149 +1,113 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
 ---
 
-<Layout title="connexion" noAuth="true">
-    <!-- Grain texture overlay -->
-    <div
-        class="pointer-events-none fixed inset-0 opacity-[0.035]"
-        style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E'); background-size: 200px;"
-    >
-    </div>
+<Layout title="connexion" hideFooter="true" noAuth="true">
+    <Hero hideImage="true" />
+    <h2>Content de vous revoir !</h2>
 
-    <!-- Ambient glow -->
     <div
-        class="pointer-events-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10"
-        style="background: radial-gradient(circle, #c8a96e 0%, transparent 70%);"
+        class="flex flex-col items-center justify-center px-4 py-8 w-full max-w-md space-y-3"
     >
-    </div>
-
-    <div class="relative w-full max-w-md px-6">
-        <!-- Titre -->
-        <div class="text-center mb-12">
-            <h1
-                class="font-['DM_Serif_Display',serif] text-4xl tracking-tight text-[#f5f0e8] mb-2"
-            >
-                Connexion
-            </h1>
-            <p
-                class="text-[#9e9585] text-sm font-light tracking-widest uppercase"
-            >
-                Content de vous revoir
-            </p>
+        <div class="relative border-bleu border bg-white rounded-lg pl-4 pt-2">
+            <label class="block mb-2">Email</label>
+            <input
+                id="login-email"
+                type="email"
+                placeholder="vous@exemple.com"
+                class="block w-full px-4 pb-3 focus:outline-none text-sm font-light"
+            />
         </div>
 
-        <!-- Formulaire -->
-        <div class="space-y-4">
-            <div class="space-y-1">
-                <label class="text-xs text-[#9e9585] tracking-widest uppercase"
-                    >Email</label
-                >
+        <div class="relative border-bleu border bg-white rounded-lg pl-4 pt-2">
+            <label class="block mb-2">Mot de passe</label>
+            <div class="relative">
                 <input
-                    id="login-email"
-                    type="email"
-                    placeholder="vous@exemple.com"
-                    class="w-full bg-[#161510] border border-[#2a2820] rounded-xl px-4 py-3.5 text-[#f5f0e8] placeholder-[#3d3a30] text-sm focus:outline-none focus:border-[#c8a96e] transition-colors"
+                    id="login-password"
+                    type="password"
+                    placeholder="••••••••"
+                    class="block w-full px-4 pb-3 focus:outline-none text-sm font-light"
                 />
-            </div>
-
-            <div class="space-y-1">
-                <label class="text-xs text-[#9e9585] tracking-widest uppercase"
-                    >Mot de passe</label
+                <button
+                    type="button"
+                    onclick="togglePassword('login-password', this)"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-bleu text-lg"
+                    >voir</button
                 >
-                <div class="relative">
-                    <input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        class="w-full bg-[#161510] border border-[#2a2820] rounded-xl px-4 py-3.5 text-[#f5f0e8] placeholder-[#3d3a30] text-sm focus:outline-none focus:border-[#c8a96e] transition-colors pr-14"
-                    />
-                    <button
-                        type="button"
-                        onclick="togglePassword('login-password', this)"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 text-[#9e9585] hover:text-[#c8a96e] transition-colors text-xs"
-                        >voir</button
-                    >
-                </div>
             </div>
-
-            <div id="login-error" class="hidden text-red-400 text-sm px-1">
-            </div>
-
-            <button
-                id="login-btn"
-                onclick="handleLogin()"
-                class="w-full mt-2 py-3.5 rounded-xl bg-[#c8a96e] text-[#0f0e0c] font-medium text-sm hover:bg-[#dbbf80] active:scale-[0.98] transition-all duration-200"
-            >
-                Se connecter
-            </button>
         </div>
 
-        <!-- Lien vers inscription -->
-        <p class="text-center text-[#9e9585] text-sm mt-8">
-            Pas encore de compte ?
-            <a
-                href="/signin"
-                class="text-[#c8a96e] hover:text-[#dbbf80] transition-colors ml-1"
-            >
-                Créer un compte
-            </a>
-        </p>
+        <div id="login-error" class="hidden text-red-400 text-sm px-1"></div>
 
-        <p class="text-center text-[#3d3a30] text-xs mt-6 tracking-wide">
-            Session active jusqu'à la fermeture du navigateur
-        </p>
+        <button
+            id="login-btn"
+            onclick="handleLogin()"
+            class="group relative w-full flex justify-center py-3 px-4 my-6 border border-transparent rounded-lg text-white bg-bleu text-xl"
+        >
+            Se connecter
+        </button>
     </div>
 
-    <script type="module">
-        import { loginUser } from "/src/js/backend.js";
-        import { saveSession, isLoggedIn } from "/src/js/auth.js";
+    <p class="text-center mt-4 font-light">
+        Je n'ai pas de compte
+        <a href="/signin" class="font-normal underline"> Inscription </a>
+    </p>
 
-        if (isLoggedIn()) window.location.href = "/";
-
-        window.togglePassword = (inputId, btn) => {
-            const input = document.getElementById(inputId);
-            const isText = input.type === "text";
-            input.type = isText ? "password" : "text";
-            btn.textContent = isText ? "voir" : "cacher";
-        };
-
-        window.handleLogin = async () => {
-            const email = document.getElementById("login-email").value.trim();
-            const password = document.getElementById("login-password").value;
-            const errorEl = document.getElementById("login-error");
-            const btn = document.getElementById("login-btn");
-
-            errorEl.classList.add("hidden");
-
-            if (!email || !password) {
-                return showError(errorEl, "Veuillez remplir tous les champs.");
-            }
-
-            btn.textContent = "Connexion…";
-            btn.disabled = true;
-
-            try {
-                const authData = await loginUser(email, password);
-                saveSession(authData);
-                window.location.href = "/";
-            } catch (err) {
-                showError(
-                    errorEl,
-                    err?.data?.message || "Email ou mot de passe incorrect.",
-                );
-            } finally {
-                btn.textContent = "Se connecter";
-                btn.disabled = false;
-            }
-        };
-
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") window.handleLogin();
-        });
-
-        function showError(el, msg) {
-            el.textContent = msg;
-            el.classList.remove("hidden");
-        }
-    </script>
+    <p class="text-center text-bleu text-xs mt-6 tracking-wide">
+        Session active jusqu'à la fermeture du navigateur
+    </p>
 </Layout>
+
+<script type="module">
+    import { loginUser } from "/src/js/backend.js";
+    import { saveSession, isLoggedIn } from "/src/js/auth.js";
+
+    if (isLoggedIn()) window.location.href = "/";
+
+    window.togglePassword = (inputId, btn) => {
+        const input = document.getElementById(inputId);
+        const isText = input.type === "text";
+        input.type = isText ? "password" : "text";
+        btn.textContent = isText ? "voir" : "cacher";
+    };
+
+    window.handleLogin = async () => {
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value;
+        const errorEl = document.getElementById("login-error");
+        const btn = document.getElementById("login-btn");
+
+        errorEl.classList.add("hidden");
+
+        if (!email || !password) {
+            return showError(errorEl, "Veuillez remplir tous les champs.");
+        }
+
+        btn.textContent = "Connexion…";
+        btn.disabled = true;
+
+        try {
+            const authData = await loginUser(email, password);
+            saveSession(authData);
+            window.location.href = "/";
+        } catch (err) {
+            showError(
+                errorEl,
+                err?.data?.message || "Email ou mot de passe incorrect.",
+            );
+        } finally {
+            btn.textContent = "Se connecter";
+            btn.disabled = false;
+        }
+    };
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") window.handleLogin();
+    });
+
+    function showError(el, msg) {
+        el.textContent = msg;
+        el.classList.remove("hidden");
+    }
+</script>

@@ -40,10 +40,10 @@ const navLinks = [
     <div class="flex items-center w-15.5 justify-between relative z-50">
       <a
         id="bouton-connexion"
-        href="/connexion"
+        href="/login"
         class="transition-opacity duration-300"
       >
-        <Image src={bonhommeBleu} alt="Bouton de connexion" />
+        <Image src={bonhommeBleu} alt="Bouton de connexion" class="-z-20" />
       </a>
       <button
         id="hamburger-btn"
@@ -124,6 +124,7 @@ const navLinks = [
   const menuBg = document.getElementById("menu-bg")!;
   const line1 = document.getElementById("line1")!;
   const line2 = document.getElementById("line2")!;
+  const boutonConnexion = document.getElementById("bouton-connexion")!;
 
   let isOpen = false;
 
@@ -136,6 +137,8 @@ const navLinks = [
 
       menu.classList.remove("h-0");
       menu.classList.add("h-screen");
+
+      boutonConnexion.classList.add("opacity-0");
 
       menuBg.classList.remove("h-0", "opacity-0");
       menuBg.classList.add("h-screen", "opacity-100");
@@ -185,6 +188,8 @@ const navLinks = [
 
       menuBg.classList.remove("h-screen", "opacity-100");
       menuBg.classList.add("h-0", "opacity-0");
+
+      boutonConnexion.classList.remove("opacity-0");
 
       setTimeout(() => {
         menu.classList.remove("h-screen");
